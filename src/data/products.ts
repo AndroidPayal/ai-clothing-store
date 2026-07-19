@@ -15,6 +15,21 @@ export type CartItem = {
   quantity : number;
 }
 
+export type Order = {
+    id: string;
+    items: CartItem[];
+    total: number;
+
+    customer: {
+        fullName: string;
+        phone: string;
+        address: string;
+        city: string;
+        pinCode: string;
+    };
+
+    createdAt: string;
+};
 
 export const products: Product[] = [
   {

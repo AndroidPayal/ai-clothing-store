@@ -81,9 +81,10 @@ export default function Navbar({
 
           <Link href="/">Home</Link>
           <Link href="/">Shop</Link>
-          <Link href="/">Women</Link>
-          <Link href="/">Men</Link>
-          <Link href="/">Contact</Link>
+          <Link href="/wishlist">Wishlist</Link>
+          <Link href="/cart">Cart</Link>
+          <Link href="/orders">Orders</Link>
+
         </div>
       </nav>
     </header>

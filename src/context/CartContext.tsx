@@ -18,7 +18,9 @@ type CartContextType = {
 
     cartCount: number;
 
-    cartTotal: number
+    cartTotal: number;
+
+    clearCart: () => void;
 };
 
 export const CartContext = createContext<CartContextType | null>(null);
@@ -103,6 +105,9 @@ export function CartProvider({
         }
     }
 
+    const clearCart = () => {
+        setCart([]);
+    };
     const value = {
         cart,
         addToCart,
@@ -110,7 +115,8 @@ export function CartProvider({
         increaseQuantity,
         decreaseQuantity,
         cartCount,
-        cartTotal
+        cartTotal,
+        clearCart
     }
 
 
