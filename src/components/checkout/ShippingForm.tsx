@@ -4,6 +4,7 @@ import Button from "@/components/ui/Button";
 import useCart from "@/hooks/useCart";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { toast } from "sonner";
 
 export default function ShippingForm(){
         const router = useRouter();
@@ -91,13 +92,15 @@ export default function ShippingForm(){
                 onClick={() => {
 
                     if (cart.length === 0) {
-                        alert("Your cart is empty.");
+                        toast.error("Your cart is empty");
                         return;
                     }
 
                     if (!isFormValid) {
-                        alert("Please fill all the fields.");
+                        toast.warning("Please fill all fields");
                         return;
+                    }else{
+                        toast.success("Order Placed Successfully 🎉");
                     }
 
                     const existingOrders =
@@ -121,9 +124,13 @@ export default function ShippingForm(){
                         "orders",
                         JSON.stringify(existingOrders)
                     );
-
-                    clearCart();
-                    router.push("/order-success");
+                    
+                    toast.success("Order Placed Successfully 🎉");
+                    //added timout, so user will get time to see toast
+                    setTimeout(() => {
+                        clearCart();
+                        router.push("/order-success");
+                    }, 1000);
                 }}
             />
 

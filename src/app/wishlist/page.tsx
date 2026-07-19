@@ -1,6 +1,7 @@
 "use client"
 import useWishlist from "@/hooks/useWishlist"
 import WishlistProductCard from "@/components/product/WishlistProductCard"
+import EmptyState from "@/components/common/EmptyState";
 
 
 export default function Cart() {
@@ -18,9 +19,13 @@ export default function Cart() {
                       ))}
                     </div>
                   ) : (
-                    <p className="text-center text-gray-500">
-                       No product in Wishlist.
-                    </p>
+                    <EmptyState
+                      emoji="❤️"
+                      title="Wishlist is Empty"
+                      description="Save products you love for later."
+                      buttonText="Browse Products"
+                      href="/"
+                    />
                   )}
                    
                 </div>

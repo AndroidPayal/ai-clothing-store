@@ -10,7 +10,6 @@ export default function OrderSuccess() {
       <h2 className="text-4xl font-bold">
         Order Placed Successfully!
       </h2>
-
       <p className="text-center text-gray-600">
         Thank you for shopping with AI Clothing Store.
       </p>

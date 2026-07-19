@@ -3,6 +3,7 @@
 import { Order } from "@/data/products";
 import { useState } from "react";
 import OrderCard from "@/components/orders/OrderCard";
+import EmptyState from "@/components/common/EmptyState";
 
 export default function Orders() {
 
@@ -26,19 +27,21 @@ console.log(orders);
                 {orders.length > 0 ? (
 
                     orders.map((order) => (
-
                         <OrderCard
                             key={order.id}
                             order={order}
                         />
-
                     ))
 
                 ) : (
 
-                    <p className="text-gray-500">
-                        No Orders Yet.
-                    </p>
+                <EmptyState
+                    emoji="📦"
+                    title="No Orders Yet"
+                    description="You haven't placed any orders."
+                    buttonText="Start Shopping"
+                    href="/"
+                />
 
                 )}
 

@@ -3,6 +3,7 @@ import useCart from "@/hooks/useCart"
 import CartProductCard from "@/components/product/CartProductCard"
 import Link from "next/link";
 import Button from "@/components/ui/Button";
+import EmptyState from "@/components/common/EmptyState";
 
 export default function Cart() {
     const {cart, cartTotal} = useCart();
@@ -29,9 +30,13 @@ export default function Cart() {
                   </div>
                 </div>
               ) : (
-                <p className="text-center text-gray-500">
-                   No product in Cart.
-                </p>
+                <EmptyState
+                  emoji="🛒"
+                  title="Your Cart is Empty"
+                  description="Looks like you haven't added any products yet."
+                  buttonText="Continue Shopping"
+                  href="/"
+                />
               )}
                
             </div>

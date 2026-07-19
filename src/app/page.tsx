@@ -8,6 +8,7 @@ import SearchBar from "@/components/search/SearchBar"
 import { useState } from "react"
 import useCart from "@/hooks/useCart"
 import useWishlist from "@/hooks/useWishlist"
+import EmptyState from "@/components/common/EmptyState"
 
 export default function Home() {
   const { addToCart , cartCount } = useCart();
@@ -82,8 +83,8 @@ export default function Home() {
               className={`rounded-lg border px-4 py-2 transition
                     ${
                         selectedCategory === category
-                            ? "bg-blue-600 text-white"
-                            : "bg-white hover:bg-gray-100"
+                            ? "bg-blue-600 text-gray-800"
+                            : "bg-white hover:bg-gray-400 text-gray-800"
                     }`}
                   key={category}
                   onClick={() => setSelectedCategory(category)}
@@ -92,6 +93,7 @@ export default function Home() {
               </button>
           ))}
           <select
+              className="text-gray-500"
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
           >
@@ -119,9 +121,13 @@ export default function Home() {
               />
             ))
           ) : (
-            <p className="text-center text-gray-500">
-              No products found.
-            </p>
+            <EmptyState
+                emoji="🔍"
+                title="No Products Found"
+                description="Try another search keyword."
+                buttonText="Back to Home"
+                href="/"
+            />
           )}
            
         </div>
