@@ -1,14 +1,18 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
   ShoppingCart,
   Heart,
   House,
   ClipboardList,
-  Phone,
+  LogIn,
+  User,
+  LogOut,
 } from "lucide-react";
+import useAuth from "@/hooks/useAuth";
+import { toast } from "sonner";
 
 type NavbarProps = {
   cartCount: number;
@@ -19,6 +23,9 @@ export default function Navbar({
   cartCount,
   wishlistCount,
 }: NavbarProps) {
+  const { user, isLoggedIn, logout } = useAuth();
+
+  const router = useRouter();
   const pathname = usePathname();
 
   const navItems = [
@@ -32,16 +39,19 @@ export default function Navbar({
       href: "/orders",
       icon: ClipboardList,
     },
-    {
-      name: "Contact",
-      href: "/contact",
-      icon: Phone,
-    },
   ];
 
+  const handleLogout = () => {
+    logout();
+
+    toast.success("Logged out successfully");
+
+    router.push("/");
+  };
+
   return (
- <header className="sticky top-0 z-50 border-b border-gray-200 bg-white shadow-sm backdrop-blur">
-    <nav className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
+    <header className="sticky top-0 z-50 border-b border-gray-200 bg-white shadow-sm">
+      <nav className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
 
         {/* Logo */}
         <Link
@@ -52,8 +62,9 @@ export default function Navbar({
         </Link>
 
         {/* Navigation */}
-        <div className="flex items-center gap-6">
+        <div className="flex items-center gap-4">
 
+          {/* Main Navigation */}
           {navItems.map((item) => {
             const Icon = item.icon;
 
@@ -72,8 +83,8 @@ export default function Navbar({
                   transition
                   ${
                     isActive
-                    ? "bg-blue-600 text-white shadow-md"
-                    : "text-gray-700 hover:bg-gray-100 hover:text-blue-600"
+                      ? "bg-blue-600 text-white shadow-md"
+                      : "text-gray-700 hover:bg-gray-100 hover:text-blue-600"
                   }
                 `}
               >
@@ -86,7 +97,17 @@ export default function Navbar({
           {/* Wishlist */}
           <Link
             href="/wishlist"
-            className="relative rounded-lg p-2 text-slate-700 transition hover:bg-gray-100 hover:text-blue-600"
+            className={`
+              relative
+              rounded-lg
+              p-2
+              transition
+              ${
+                pathname === "/wishlist"
+                  ? "bg-blue-600 text-white"
+                  : "text-slate-700 hover:bg-gray-100 hover:text-blue-600"
+              }
+            `}
           >
             <Heart size={24} />
 
@@ -115,9 +136,18 @@ export default function Navbar({
           {/* Cart */}
           <Link
             href="/cart"
-            className="relative rounded-lg p-2 text-slate-700 transition hover:bg-gray-100 hover:text-blue-600"
-         
-         >
+            className={`
+              relative
+              rounded-lg
+              p-2
+              transition
+              ${
+                pathname === "/cart"
+                  ? "bg-blue-600 text-white"
+                  : "text-slate-700 hover:bg-gray-100 hover:text-blue-600"
+              }
+            `}
+          >
             <ShoppingCart size={24} />
 
             {cartCount > 0 && (
@@ -141,6 +171,96 @@ export default function Navbar({
               </span>
             )}
           </Link>
+
+          {/* Authentication */}
+          {isLoggedIn ? (
+            <div className="flex items-center gap-3">
+
+              {/* User Name */}
+              <div className="flex items-center gap-2 rounded-lg bg-gray-100 px-3 py-2">
+                <User
+                  size={18}
+                  className="text-blue-600"
+                />
+
+                <span className="font-medium text-gray-800">
+                  Hi, {user?.fullName}
+                </span>
+              </div>
+
+              {/* Logout */}
+              <button
+                onClick={handleLogout}
+                className="
+                  flex
+                  items-center
+                  gap-2
+                  rounded-lg
+                  border
+                  border-red-500
+                  px-3
+                  py-2
+                  font-medium
+                  text-red-600
+                  transition
+                  hover:bg-red-50
+                "
+              >
+                <LogOut size={18} />
+
+                <span>
+                  Logout
+                </span>
+              </button>
+
+            </div>
+          ) : (
+            <div className="flex items-center gap-2">
+
+              {/* Login */}
+              <Link
+                href="/login"
+                className="
+                  flex
+                  items-center
+                  gap-2
+                  rounded-lg
+                  border
+                  border-blue-600
+                  px-3
+                  py-2
+                  font-medium
+                  text-blue-600
+                  transition
+                  hover:bg-blue-50
+                "
+              >
+                <LogIn size={18} />
+
+                <span>
+                  Login
+                </span>
+              </Link>
+
+              {/* Signup */}
+              <Link
+                href="/signup"
+                className="
+                  rounded-lg
+                  bg-blue-600
+                  px-4
+                  py-2
+                  font-medium
+                  text-white
+                  transition
+                  hover:bg-blue-700
+                "
+              >
+                Sign Up
+              </Link>
+
+            </div>
+          )}
 
         </div>
 

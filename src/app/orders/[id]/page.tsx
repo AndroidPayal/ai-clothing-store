@@ -2,6 +2,7 @@
 
 import { useParams } from "next/navigation";
 import { Order } from "@/data/products";
+import ProtectedRoute from "@/components/auth/ProtectedRoute";
 
 export default function OrderDetails() {
 
@@ -24,7 +25,8 @@ export default function OrderDetails() {
     }
 
     return (
-        <div>
+        <ProtectedRoute>
+                    <div>
             <section className="mx-auto max-w-5xl p-8">
 
                 <h1 className="mb-8 text-4xl font-bold border-b">
@@ -101,5 +103,6 @@ export default function OrderDetails() {
                 </div>
             </section>
         </div>
+        </ProtectedRoute>
     );
 }

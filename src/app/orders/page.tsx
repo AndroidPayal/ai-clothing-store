@@ -4,6 +4,7 @@ import { Order } from "@/data/products";
 import { useState } from "react";
 import OrderCard from "@/components/orders/OrderCard";
 import EmptyState from "@/components/common/EmptyState";
+import ProtectedRoute from "@/components/auth/ProtectedRoute";
 
 export default function Orders() {
 
@@ -17,7 +18,8 @@ export default function Orders() {
     });
 console.log(orders);
     return (
-        <div className="mx-auto max-w-5xl p-8">
+        <ProtectedRoute>
+                    <div className="mx-auto max-w-5xl p-8">
         <h1 className="mb-8 text-4xl font-bold">
             My Orders
         </h1>
@@ -48,5 +50,6 @@ console.log(orders);
             </div>
         
         </div>
+        </ProtectedRoute>
     );
 }
