@@ -2,15 +2,15 @@
 
 import { useState } from "react";
 import Button from "@/components/ui/Button";
-import useAuth from "@/hooks/useAuth";
 import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import Link from "next/link";
 import GuestRoute from "@/components/auth/GuestRoute";
+import { signIn } from "next-auth/react";
 
 export default function Login() {
-  const { login } = useAuth();
   const router = useRouter();
+  const [isLoading, setIsLoading] = useState(false);
 
   const [formData, setFormData] = useState({
     email: "",
@@ -30,7 +30,7 @@ export default function Login() {
     });
   };
 
-  const handleLogin = () => {
+  const handleLogin = async () => {
     if (
       !formData.email.trim() ||
       !formData.password.trim()
@@ -40,10 +40,23 @@ export default function Login() {
     }
 
     try {
-      login(
-        formData.email.trim(),
-        formData.password
-      );
+
+      setIsLoading(true);
+
+      const result = await signIn("credentials",{
+        email: formData.email.trim(),
+        password: formData.password.trim(),
+        redirect: false
+      });
+      
+      if(result?.error){
+        setIsLoading(false);
+        console.log(result.error)
+        toast.error("invalid email or pw")
+        return;
+      }
+
+      setIsLoading(false);
 
       toast.success("Login successful 🎉");
 
@@ -60,7 +73,7 @@ export default function Login() {
 
   return (
     <GuestRoute>
-          <section className="mx-auto flex min-h-[80vh] max-w-md items-center px-6">
+      <section className="mx-auto flex min-h-[80vh] max-w-md items-center px-6">
 
       <div className="w-full rounded-xl border bg-white p-8 text-gray-900 shadow-lg">
 
@@ -119,7 +132,8 @@ export default function Login() {
           />
 
           <Button
-            text="Login"
+            text={isLoading?"loading...":"Login"}
+            disabled={isLoading}
             onClick={handleLogin}
           />
 

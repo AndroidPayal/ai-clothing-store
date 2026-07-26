@@ -2,9 +2,7 @@
 
 import {
   createContext,
-  useContext,
   useState,
-    useEffect
 } from "react";
 
 import { User } from "@/data/auth";
@@ -21,7 +19,7 @@ type AuthContextType = {
     fullName: string,
     email: string,
     password: string
-  ) => void;
+  ) => Promise<void>;
 
   logout: () => void;
 
@@ -37,97 +35,151 @@ type AuthProviderProps = {
   children: React.ReactNode;
 };
 
-
 export function AuthProvider({
   children,
 }: AuthProviderProps) {
 
   const [user, setUser] = useState<User | null>(() => {
+
     if (typeof window === "undefined") {
       return null;
     }
 
-    const savedUser = localStorage.getItem("currentUser");
+    const savedUser =
+      localStorage.getItem("currentUser");
 
-    return savedUser ? JSON.parse(savedUser) : null;
+    return savedUser
+      ? JSON.parse(savedUser)
+      : null;
   });
 
-  const signup = (
+
+  // =========================
+  // SIGNUP
+  // =========================
+
+  const signup = async (
     fullName: string,
     email: string,
     password: string
   ) => {
 
-    const existingUsers: User[] =
-      JSON.parse(localStorage.getItem("users") || "[]");
+    const response = await fetch(
+      "/api/auth/signup",
+      {
+        method: "POST",
 
-    const alreadyExists = existingUsers.find(
-      (user) => user.email === email
+        headers: {
+          "Content-Type":
+            "application/json",
+        },
+
+        body: JSON.stringify({
+          fullName,
+          email,
+          password,
+        }),
+      }
     );
 
-    if (alreadyExists) {
-      throw new Error("Email already exists");
+
+    const data =
+      await response.json();
+
+
+    if (!response.ok) {
+      throw new Error(
+        data.message ||
+        "Signup failed"
+      );
     }
 
+
+    // User returned by MongoDB API
     const newUser: User = {
-      id: Date.now().toString(),
-      fullName,
-      email,
-      password,
+      id: data.user.id,
+      fullName:
+        data.user.fullName,
+      email:
+        data.user.email,
     };
 
-    existingUsers.push(newUser);
 
-    localStorage.setItem(
-      "users",
-      JSON.stringify(existingUsers)
-    );
-
+    // Keep user logged in
     localStorage.setItem(
       "currentUser",
       JSON.stringify(newUser)
     );
 
+
     setUser(newUser);
   };
 
+
+  // =========================
+  // LOGIN
+  // =========================
+
   const login = (
-  email: string,
-  password: string
-) => {
-  const existingUsers: User[] =
-    JSON.parse(localStorage.getItem("users") || "[]");
+    email: string,
+    password: string
+  ) => {
 
-  const foundUser = existingUsers.find(
-    (user) =>
-      user.email === email &&
-      user.password === password
-  );
+    const existingUsers: User[] =
+      JSON.parse(
+        localStorage.getItem(
+          "users"
+        ) || "[]"
+      );
 
-  if (!foundUser) {
-    throw new Error("Invalid email or password");
-  }
 
-  localStorage.setItem(
-    "currentUser",
-    JSON.stringify(foundUser)
-  );
+    const foundUser =
+      existingUsers.find(
+        (user) =>
+          user.email === email &&
+          user.password === password
+      );
 
-  setUser(foundUser);
+
+    if (!foundUser) {
+      throw new Error(
+        "Invalid email or password"
+      );
+    }
+
+
+    localStorage.setItem(
+      "currentUser",
+      JSON.stringify(foundUser)
+    );
+
+
+    setUser(foundUser);
   };
+
+
+  // =========================
+  // LOGOUT
+  // =========================
 
   const logout = () => {
-  localStorage.removeItem("currentUser");
-  setUser(null);
+
+    localStorage.removeItem(
+      "currentUser"
+    );
+
+    setUser(null);
   };
 
-     const value = {
-        user,
-        login,
-        signup,
-        logout,
-        isLoggedIn: !!user,
-      }
+
+  const value = {
+    user,
+    login,
+    signup,
+    logout,
+    isLoggedIn: !!user,
+  };
+
 
   return (
     <AuthContext.Provider

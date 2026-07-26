@@ -6,6 +6,7 @@ import { WishlistProvider } from "@/context/WishlistContext";
 import { Toaster } from "sonner"
 import Footer from "@/components/layout/Footer";
 import { AuthProvider } from "@/context/AuthContext";
+import Providers from "./providers";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -34,6 +35,8 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col">
         {
+        
+        <Providers>
           <AuthProvider>
 
             <CartProvider>
@@ -49,6 +52,8 @@ export default function RootLayout({
             </CartProvider>
           
           </AuthProvider>
+        
+        </Providers>
         }
           <Toaster
             position="top-right"

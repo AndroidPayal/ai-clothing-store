@@ -11,7 +11,7 @@ import {
   User,
   LogOut,
 } from "lucide-react";
-import useAuth from "@/hooks/useAuth";
+import { useSession, signOut } from "next-auth/react";
 import { toast } from "sonner";
 
 type NavbarProps = {
@@ -23,7 +23,9 @@ export default function Navbar({
   cartCount,
   wishlistCount,
 }: NavbarProps) {
-  const { user, isLoggedIn, logout } = useAuth();
+  const { data: session, status } = useSession();
+  const isLoggedIn = status === "authenticated";
+  const user = session?.user;
 
   const router = useRouter();
   const pathname = usePathname();
@@ -41,8 +43,10 @@ export default function Navbar({
     },
   ];
 
-  const handleLogout = () => {
-    logout();
+  const handleLogout = async () => {
+    await signOut({
+      redirect: false,
+    })
 
     toast.success("Logged out successfully");
 
@@ -184,7 +188,7 @@ export default function Navbar({
                 />
 
                 <span className="font-medium text-gray-800">
-                  Hi, {user?.fullName}
+                  Hi, {user?.name}
                 </span>
               </div>
 
