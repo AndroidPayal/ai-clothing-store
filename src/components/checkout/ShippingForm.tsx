@@ -6,138 +6,136 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
 
-export default function ShippingForm(){
-        const router = useRouter();
-    
-        const { cart, cartTotal, clearCart } = useCart();
-        const [formData, setFormData] = useState({
-            fullName: "",
-            phone: "",
-            address: "",
-            city: "",
-            pinCode: "",
-        });
-    
-        const handleChange = (
-            e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-        ) => {
-    
-            setFormData({
-                ...formData,
-                [e.target.name]: e.target.value,
-            });
-    
-        };
-    
-        const isFormValid =
-            formData.fullName.trim() !== "" &&
-            formData.phone.trim() !== "" &&
-            formData.address.trim() !== "" &&
-            formData.city.trim() !== "" &&
-            formData.pinCode.trim() !== "";
-    
-    return (
-        <div>
+export default function ShippingForm() {
+  const router = useRouter();
 
-          <h2 className="mb-5 text-2xl font-semibold">
-            Shipping Address
-          </h2>
+  const { cart, cartTotal, clearCart } = useCart();
+  const [formData, setFormData] = useState({
+    fullName: "",
+    phone: "",
+    address: "",
+    city: "",
+    pinCode: "",
+  });
 
-          <form className="space-y-4">
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+  ) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value,
+    });
+  };
 
-            <input
-                name="fullName"
-                value={formData.fullName}
-                onChange={handleChange}
-                placeholder="Full Name"
-                className="w-full rounded-lg border p-3"
-            />
+  const isFormValid =
+    formData.fullName.trim() !== "" &&
+    formData.phone.trim() !== "" &&
+    formData.address.trim() !== "" &&
+    formData.city.trim() !== "" &&
+    formData.pinCode.trim() !== "";
 
-            <input
-                name="phone"
-                value={formData.phone}
-                onChange={handleChange}
-                placeholder="Phone Number"
-                className="w-full rounded-lg border p-3"
-            />
+  const handlePlaceOrder = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (cart.length === 0) {
+      toast.error("Your cart is empty");
+      return;
+    }
 
-            <textarea
-                name="address"
-                value={formData.address}
-                onChange={handleChange}
-                rows={4}
-                placeholder="Address"
-                className="w-full rounded-lg border p-3"
-            />
+    if (!isFormValid) {
+      toast.warning("Please fill all fields");
+      return;
+    }
 
-            <input
-                name="city"
-                value={formData.city}
-                onChange={handleChange}
-                placeholder="City"
-                className="w-full rounded-lg border p-3"
-            />
+    try {
+      const response = await fetch("/api/orders", {
+        method: "POST",
 
-            <input
-                name="pinCode"
-                value={formData.pinCode}
-                onChange={handleChange}
-                placeholder="Pin Code"
-                className="w-full rounded-lg border p-3"
-            />
+        headers: {
+          "Content-Type": "application/json",
+        },
 
-            <Button
-                text="Place Order"
-                disabled={!isFormValid || cart.length === 0}
-                onClick={() => {
+        body: JSON.stringify({
+          items: cart,
+          total: cartTotal,
+          customer: formData,
+        }),
+      });
 
-                    if (cart.length === 0) {
-                        toast.error("Your cart is empty");
-                        return;
-                    }
+      const data = await response.json();
 
-                    if (!isFormValid) {
-                        toast.warning("Please fill all fields");
-                        return;
-                    }else{
-                        toast.success("Order Placed Successfully 🎉");
-                    }
+      console.log("ORDER API RESPONSE:", data);
 
-                    const existingOrders =
-                        JSON.parse(localStorage.getItem("orders") || "[]");
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to place order");
+      }
 
-                    const newOrder = {
-                        id: `ORD-${Date.now()}`,
+      // Only clear cart AFTER successful MongoDB save
+      clearCart();
 
-                        items: cart,
+      setTimeout(() => {
+        toast.success("Order Placed Successfully 🎉");
+        router.push("/order-success");
+      }, 1000);
+    } catch (error) {
+      console.error("PLACE ORDER ERROR:", error);
 
-                        total: cartTotal,
+      toast.error(
+        error instanceof Error ? error.message : "Failed to place order",
+      );
+    }
+  };
 
-                        customer: formData,
+  return (
+    <div>
+      <h2 className="mb-5 text-2xl font-semibold">Shipping Address</h2>
 
-                        createdAt: new Date().toISOString(),
-                    };
+      <form className="space-y-4" onSubmit={handlePlaceOrder}>
+        <input
+          name="fullName"
+          value={formData.fullName}
+          onChange={handleChange}
+          placeholder="Full Name"
+          className="w-full rounded-lg border p-3"
+        />
 
-                    existingOrders.push(newOrder);
+        <input
+          name="phone"
+          value={formData.phone}
+          onChange={handleChange}
+          placeholder="Phone Number"
+          className="w-full rounded-lg border p-3"
+        />
 
-                    localStorage.setItem(
-                        "orders",
-                        JSON.stringify(existingOrders)
-                    );
-                    
-                    toast.success("Order Placed Successfully 🎉");
-                    //added timout, so user will get time to see toast
-                    setTimeout(() => {
-                        clearCart();
-                        router.push("/order-success");
-                    }, 1000);
-                }}
-            />
+        <textarea
+          name="address"
+          value={formData.address}
+          onChange={handleChange}
+          rows={4}
+          placeholder="Address"
+          className="w-full rounded-lg border p-3"
+        />
 
-          </form>
+        <input
+          name="city"
+          value={formData.city}
+          onChange={handleChange}
+          placeholder="City"
+          className="w-full rounded-lg border p-3"
+        />
 
-        </div>
+        <input
+          name="pinCode"
+          value={formData.pinCode}
+          onChange={handleChange}
+          placeholder="Pin Code"
+          className="w-full rounded-lg border p-3"
+        />
 
-
-    )
+        <Button
+          text="Place Order"
+          disabled={!isFormValid || cart.length === 0}
+        />
+      </form>
+    </div>
+  );
 }

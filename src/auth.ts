@@ -4,56 +4,67 @@ import User from "./models/User";
 import bcrypt from "bcryptjs";
 import connectDB from "./lib/mongodb";
 
-export const { 
-    handlers, 
-    auth, 
-    signIn, 
-    signOut 
-} = NextAuth({
+export const { handlers, auth, signIn, signOut } = NextAuth({
+  providers: [
+    Credentials({
+      credentials: {
+        email: {
+          label: "Email",
+          type: "email",
+        },
+        password: {
+          label: "Password",
+          type: "password",
+        },
+      },
 
-        providers:[
+      async authorize(credentials) {
+        await connectDB();
+        const email = credentials?.email as string;
+        const password = credentials?.password as string;
+        if (!email || !password) {
+          return null;
+        }
 
-            Credentials({
+        const existingUser = await User.findOne({ email });
 
-                credentials: {
-                    email: {
-                        label: "Email",
-                        type: "email",
-                    },
-                    password: {
-                        label: "Password",
-                        type: "password",
-                    },
-                },
+        if (!existingUser) return null;
 
-                async authorize(credentials){
-                    await connectDB();
-                    const email = credentials?.email as string;
-                    const password = credentials?.password as string;
-                    if(!email || !password) {
-                        return null};
+        if (!existingUser.password) {
+          return null;
+        }
 
-                    const existingUser = await User.findOne({ email });
-                    
-                    if(!existingUser) return null;
+        const passwordMatch = await bcrypt.compare(
+          password,
+          existingUser.password,
+        );
 
-                    if (!existingUser.password) {
-                    return null;
-                    }
+        if (!passwordMatch) return null;
 
-                   const passwordMatch = await bcrypt.compare(
-                        password,
-                        existingUser.password
-                    );
+        return {
+          id: existingUser._id.toString(),
+          name: existingUser.fullName,
+          email: existingUser.email,
+        };
+      },
+    }),
+  ],
 
-                    if(!passwordMatch) return null;
+  callbacks: {
+    async jwt({ token, user }) {
+      if (user) {
+        token.id = user.id;
+      }
 
-                    return {
-                        id: existingUser._id.toString(),
-                        name: existingUser.fullName,
-                        email: existingUser.email,
-                    };
-                }
-            }),
-        ],
-    });
+      return token;
+    },
+
+    async session({ session, token }) {
+      if (session.user) {
+        session.user.id = token.id as string;
+      }
+
+      return session;
+    },
+  },
+});
