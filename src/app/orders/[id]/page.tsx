@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
-import { Order } from "@/data/products";
+import { Order } from "@/types/Order";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
 
 type MongoDBOrder = {
@@ -10,6 +10,7 @@ type MongoDBOrder = {
   items: Order["items"];
   total: number;
   customer: Order["customer"];
+  status: Order["status"];
   createdAt: string;
 };
 
@@ -45,6 +46,7 @@ export default function OrderDetails() {
           items: mongoOrder.items,
           total: mongoOrder.total,
           customer: mongoOrder.customer,
+          status: mongoOrder.status,
           createdAt: mongoOrder.createdAt,
         };
 
@@ -93,6 +95,10 @@ export default function OrderDetails() {
                 <p className="mt-2 text-gray-500">
                   {new Date(currentOrder.createdAt).toLocaleString()}
                 </p>
+              </div>
+              <div className="mt-6 mb-6">
+                <p className="text-sm text-gray-500">Order Status</p>
+                <p className="mt-1  font-semibold">{currentOrder.status}</p>
               </div>
 
               <div className="space-y-5">

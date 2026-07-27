@@ -1,5 +1,12 @@
 import mongoose, { Schema, model, models, Document } from "mongoose";
 
+export type OrderStatus =
+  | "Pending"
+  | "Confirmed"
+  | "Shipped"
+  | "Delivered"
+  | "Cancelled";
+
 export interface IOrder extends Document {
   userId: mongoose.Types.ObjectId;
 
@@ -27,7 +34,10 @@ export interface IOrder extends Document {
     pinCode: string;
   };
 
+  status: OrderStatus;
+
   createdAt: Date;
+  updatedAt: Date;
 }
 
 const orderSchema = new Schema<IOrder>(
@@ -120,6 +130,12 @@ const orderSchema = new Schema<IOrder>(
         type: String,
         required: true,
       },
+    },
+
+    status: {
+      type: String,
+      enum: ["Pending", "Confirmed", "Shipped", "Delivered", "Cancelled"],
+      default: "Pending",
     },
   },
   {

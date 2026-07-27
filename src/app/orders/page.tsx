@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Order } from "@/data/products";
+import { Order } from "@/types/Order";
 import OrderCard from "@/components/orders/OrderCard";
 import EmptyState from "@/components/common/EmptyState";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
@@ -12,6 +12,7 @@ type MongoDBOrder = {
   items: Order["items"];
   total: number;
   customer: Order["customer"];
+  status: Order["status"];
   createdAt: string;
 };
 
@@ -43,6 +44,7 @@ export default function Orders() {
             items: order.items,
             total: order.total,
             customer: order.customer,
+            status: order.status,
             createdAt: order.createdAt,
           }),
         );
