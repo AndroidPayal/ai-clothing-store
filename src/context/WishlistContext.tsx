@@ -2,7 +2,7 @@
 
 import { createContext, useEffect, useState, type ReactNode } from "react";
 import { useSession } from "next-auth/react";
-import { type Product } from "@/data/products";
+import { type Product } from "@/types/Product";
 
 type WishlistContextType = {
   wishlist: Product[];

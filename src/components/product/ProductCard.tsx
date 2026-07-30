@@ -5,7 +5,7 @@ import Link from "next/link";
 import { toast } from "sonner";
 
 import Button from "../ui/Button";
-import { Product } from "@/data/products";
+import { Product } from "@/types/Product";
 
 type ProductCardProps = {
   product: Product;
@@ -36,9 +36,7 @@ export default function ProductCard({
       "
     >
       <Link href={`/products/${product.id}`}>
-
         <div className="overflow-hidden rounded-lg">
-
           <Image
             src={product.thumbnail}
             alt={product.title}
@@ -53,11 +51,9 @@ export default function ProductCard({
               group-hover:scale-105
             "
           />
-
         </div>
 
         <div className="mt-4">
-
           <h3
             className="
               text-xl
@@ -69,27 +65,16 @@ export default function ProductCard({
             {product.title}
           </h3>
 
-          <p className="mt-1 text-sm text-gray-500">
-            {product.category}
-          </p>
+          <p className="mt-1 text-sm text-gray-500">{product.category}</p>
 
           <div className="mt-2 flex items-center gap-2">
+            <span className="text-yellow-500">★★★★★</span>
 
-            <span className="text-yellow-500">
-              ★★★★★
-            </span>
-
-            <span className="text-sm text-gray-500">
-              (4.8)
-            </span>
-
+            <span className="text-sm text-gray-500">(4.8)</span>
           </div>
 
           <div className="mt-3 flex items-center justify-between">
-
-            <p className="text-2xl font-bold text-blue-600">
-              ₹{product.price}
-            </p>
+            <p className="text-2xl font-bold text-blue-600">₹{product.price}</p>
 
             <span
               className={`
@@ -105,19 +90,13 @@ export default function ProductCard({
                 }
               `}
             >
-              {product.inStock
-                ? "In Stock"
-                : "Out of Stock"}
+              {product.inStock ? "In Stock" : "Out of Stock"}
             </span>
-
           </div>
-
         </div>
-
       </Link>
 
       <div className="mt-5 space-y-3">
-
         <Button
           text="🛒 Add To Cart"
           disabled={!product.inStock}
@@ -134,7 +113,6 @@ export default function ProductCard({
             toast.success("Added to Wishlist ❤️");
           }}
         />
-
       </div>
     </div>
   );

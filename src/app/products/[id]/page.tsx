@@ -1,6 +1,4 @@
 import ProductDetail from "@/components/product/ProductDetail";
-import { products } from "@/data/products";
-
 
 type PageProps = {
   params: Promise<{
@@ -10,19 +8,19 @@ type PageProps = {
 
 export default async function ProductDetailPage({ params }: PageProps) {
   const { id } = await params;
-  const productId = Number(id);
 
-  const product = products.find(
-    (product) => product.id === productId
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_BASE_URL}/api/products/${id}`,
+    {
+      cache: "no-store",
+    },
   );
 
-  if (!product) {
+  if (!response.ok) {
     return <h1>Product Not Found</h1>;
   }
 
-  return (
-    <ProductDetail
-      product = {product}    
-    />
-  );
+  const data = await response.json();
+
+  return <ProductDetail product={data.product} />;
 }

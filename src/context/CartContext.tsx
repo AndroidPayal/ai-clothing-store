@@ -2,7 +2,7 @@
 
 import { createContext, useEffect, useState, type ReactNode } from "react";
 import { useSession } from "next-auth/react";
-import { type Product, type CartItem } from "@/data/products";
+import { type Product, type CartItem } from "@/types/Product";
 
 type CartContextType = {
   cart: CartItem[];

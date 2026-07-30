@@ -134,6 +134,7 @@ export default function ShippingForm() {
         <Button
           text="Place Order"
           disabled={!isFormValid || cart.length === 0}
+          type="submit"
         />
       </form>
     </div>

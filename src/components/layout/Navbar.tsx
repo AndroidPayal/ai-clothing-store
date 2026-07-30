@@ -19,10 +19,7 @@ type NavbarProps = {
   wishlistCount: number;
 };
 
-export default function Navbar({
-  cartCount,
-  wishlistCount,
-}: NavbarProps) {
+export default function Navbar({ cartCount, wishlistCount }: NavbarProps) {
   const { data: session, status } = useSession();
   const isLoggedIn = status === "authenticated";
   const user = session?.user;
@@ -46,7 +43,7 @@ export default function Navbar({
   const handleLogout = async () => {
     await signOut({
       redirect: false,
-    })
+    });
 
     toast.success("Logged out successfully");
 
@@ -56,24 +53,18 @@ export default function Navbar({
   return (
     <header className="sticky top-0 z-50 border-b border-gray-200 bg-white shadow-sm">
       <nav className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
-
         {/* Logo */}
-        <Link
-          href="/"
-          className="text-2xl font-extrabold text-slate-900"
-        >
+        <Link href="/" className="text-2xl font-extrabold text-slate-900">
           AI Clothing Store
         </Link>
 
         {/* Navigation */}
         <div className="flex items-center gap-4">
-
           {/* Main Navigation */}
           {navItems.map((item) => {
             const Icon = item.icon;
 
-            const isActive =
-              pathname === item.href;
+            const isActive = pathname === item.href;
 
             return (
               <Link
@@ -179,13 +170,9 @@ export default function Navbar({
           {/* Authentication */}
           {isLoggedIn ? (
             <div className="flex items-center gap-3">
-
               {/* User Name */}
               <div className="flex items-center gap-2 rounded-lg bg-gray-100 px-3 py-2">
-                <User
-                  size={18}
-                  className="text-blue-600"
-                />
+                <User size={18} className="text-blue-600" />
 
                 <span className="font-medium text-gray-800">
                   Hi, {user?.name}
@@ -212,15 +199,11 @@ export default function Navbar({
               >
                 <LogOut size={18} />
 
-                <span>
-                  Logout
-                </span>
+                <span>Logout</span>
               </button>
-
             </div>
           ) : (
             <div className="flex items-center gap-2">
-
               {/* Login */}
               <Link
                 href="/login"
@@ -241,9 +224,7 @@ export default function Navbar({
               >
                 <LogIn size={18} />
 
-                <span>
-                  Login
-                </span>
+                <span>Login</span>
               </Link>
 
               {/* Signup */}
@@ -262,12 +243,9 @@ export default function Navbar({
               >
                 Sign Up
               </Link>
-
             </div>
           )}
-
         </div>
-
       </nav>
     </header>
   );
