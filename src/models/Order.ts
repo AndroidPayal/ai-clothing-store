@@ -34,6 +34,12 @@ export interface IOrder extends Document {
     pinCode: string;
   };
 
+  payment: {
+    razorpayOrderId: string;
+    razorpayPaymentId: string;
+    razorpaySignature: string;
+  };
+
   status: OrderStatus;
 
   createdAt: Date;
@@ -127,6 +133,23 @@ const orderSchema = new Schema<IOrder>(
       },
 
       pinCode: {
+        type: String,
+        required: true,
+      },
+    },
+
+    payment: {
+      razorpayOrderId: {
+        type: String,
+        required: true,
+      },
+
+      razorpayPaymentId: {
+        type: String,
+        required: true,
+      },
+
+      razorpaySignature: {
         type: String,
         required: true,
       },
