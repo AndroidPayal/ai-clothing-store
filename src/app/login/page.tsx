@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import Button from "@/components/ui/Button";
 import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
@@ -8,17 +8,18 @@ import Link from "next/link";
 import GuestRoute from "@/components/auth/GuestRoute";
 import { signIn, getSession } from "next-auth/react";
 
-export default function Login() {
+function LoginForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+
+  const redirectPath = searchParams.get("redirect") || "/";
+
   const [isLoading, setIsLoading] = useState(false);
+
   const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
-
-  const searchParams = useSearchParams();
-
-  const redirectPath = searchParams.get("redirect") || "/";
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
@@ -43,9 +44,12 @@ export default function Login() {
       });
 
       if (result?.error) {
-        setIsLoading(false);
         console.log(result.error);
+
         toast.error("Invalid email or password");
+
+        setIsLoading(false);
+
         return;
       }
 
@@ -60,11 +64,12 @@ export default function Login() {
       } else {
         router.push(redirectPath);
       }
-      setIsLoading(false);
     } catch (error) {
-      if (error instanceof Error) {
-        toast.error(error.message);
-      }
+      console.error("LOGIN ERROR:", error);
+
+      toast.error(error instanceof Error ? error.message : "Login failed");
+
+      setIsLoading(false);
     }
   };
 
@@ -92,19 +97,19 @@ export default function Login() {
               value={formData.email}
               onChange={handleChange}
               className="
-              w-full
-              rounded-lg
-              border
-              border-gray-300
-              bg-white
-              p-3
-              text-gray-900
-              placeholder:text-gray-400
-              outline-none
-              focus:border-blue-500
-              focus:ring-2
-              focus:ring-blue-100
-            "
+                w-full
+                rounded-lg
+                border
+                border-gray-300
+                bg-white
+                p-3
+                text-gray-900
+                placeholder:text-gray-400
+                outline-none
+                focus:border-blue-500
+                focus:ring-2
+                focus:ring-blue-100
+              "
             />
 
             <input
@@ -114,23 +119,23 @@ export default function Login() {
               value={formData.password}
               onChange={handleChange}
               className="
-              w-full
-              rounded-lg
-              border
-              border-gray-300
-              bg-white
-              p-3
-              text-gray-900
-              placeholder:text-gray-400
-              outline-none
-              focus:border-blue-500
-              focus:ring-2
-              focus:ring-blue-100
-            "
+                w-full
+                rounded-lg
+                border
+                border-gray-300
+                bg-white
+                p-3
+                text-gray-900
+                placeholder:text-gray-400
+                outline-none
+                focus:border-blue-500
+                focus:ring-2
+                focus:ring-blue-100
+              "
             />
 
             <Button
-              text={isLoading ? "loading..." : "Login"}
+              text={isLoading ? "Loading..." : "Login"}
               disabled={isLoading}
               type="submit"
             />
@@ -148,5 +153,19 @@ export default function Login() {
         </div>
       </section>
     </GuestRoute>
+  );
+}
+
+export default function Login() {
+  return (
+    <Suspense
+      fallback={
+        <section className="flex min-h-[80vh] items-center justify-center">
+          <p className="text-lg font-medium text-gray-600">Loading login...</p>
+        </section>
+      }
+    >
+      <LoginForm />
+    </Suspense>
   );
 }
