@@ -141,17 +141,17 @@ const orderSchema = new Schema<IOrder>(
     payment: {
       razorpayOrderId: {
         type: String,
-        required: true,
+        default: "",
       },
 
       razorpayPaymentId: {
         type: String,
-        required: true,
+        default: "",
       },
 
       razorpaySignature: {
         type: String,
-        required: true,
+        default: "",
       },
     },
 

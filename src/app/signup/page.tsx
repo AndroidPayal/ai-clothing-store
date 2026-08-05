@@ -18,9 +18,7 @@ export default function Signup() {
 
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value,
@@ -38,10 +36,7 @@ export default function Signup() {
       return;
     }
 
-    if (
-      formData.password !==
-      formData.confirmPassword
-    ) {
+    if (formData.password !== formData.confirmPassword) {
       toast.error("Passwords do not match.");
       return;
     }
@@ -49,39 +44,30 @@ export default function Signup() {
     try {
       setIsLoading(true);
 
-      const response = await fetch("/api/auth/signup",{
+      const response = await fetch("/api/auth/signup", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          fullName: formData.fullName.trim(),
+          email: formData.email.trim(),
+          password: formData.password,
+        }),
+      });
 
-          method:"POST",
-          headers: {
-            "content-type" : "application/json"
-          },
-          body: JSON.stringify({
-            fullName: formData.fullName,
-            email: formData.email,
-            password: formData.password
-          })
-
-      });     
-      
       const data = await response.json();
-      if(!response.ok) throw new Error(data.message || "Signup Failed");
+      if (!response.ok) throw new Error(data.message || "Signup Failed");
 
-      toast.success(
-        "Account created successfully 🎉"
-      );
+      toast.success("Account created successfully 🎉");
 
       router.push("/login");
-
     } catch (error) {
-
       if (error instanceof Error) {
         toast.error(error.message);
       } else {
-        toast.error(
-          "Something went wrong. Please try again."
-        );
+        toast.error("Something went wrong. Please try again.");
       }
-
     } finally {
       setIsLoading(false);
     }
@@ -91,7 +77,6 @@ export default function Signup() {
     <GuestRoute>
       <section className="mx-auto flex min-h-[80vh] max-w-md items-center">
         <div className="w-full rounded-xl border bg-white p-8 text-gray-900 shadow-lg">
-
           <h1 className="mb-2 text-center text-4xl font-bold">
             Create Account
           </h1>
@@ -101,7 +86,6 @@ export default function Signup() {
           </p>
 
           <div className="space-y-5">
-
             <input
               name="fullName"
               placeholder="Full Name"
@@ -138,17 +122,11 @@ export default function Signup() {
             />
 
             <Button
-              text={
-                isLoading
-                  ? "Creating Account..."
-                  : "Create Account"
-              }
+              text={isLoading ? "Creating Account..." : "Create Account"}
               disabled={isLoading}
               onClick={handleSignup}
             />
-
           </div>
-
         </div>
       </section>
     </GuestRoute>

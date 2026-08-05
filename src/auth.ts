@@ -1,8 +1,7 @@
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
-import User from "./models/User";
-import bcrypt from "bcryptjs";
-import connectDB from "./lib/mongodb";
+
+import { authenticateUser } from "@/lib/authenticateUser";
 import type { UserRole } from "@/types/next-auth";
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
@@ -13,6 +12,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           label: "Email",
           type: "email",
         },
+
         password: {
           label: "Password",
           type: "password",
@@ -20,38 +20,26 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       },
 
       async authorize(credentials) {
-        await connectDB();
         const email = credentials?.email as string;
         const password = credentials?.password as string;
+
         if (!email || !password) {
           return null;
         }
 
-        const existingUser = await User.findOne({ email });
+        const user = await authenticateUser(email, password);
 
-        if (!existingUser) return null;
-
-        if (!existingUser.password) {
+        if (!user) {
           return null;
         }
 
-        const passwordMatch = await bcrypt.compare(
-          password,
-          existingUser.password,
-        );
+        console.log("AUTH USER:", user);
 
-        if (!passwordMatch) return null;
-        console.log("AUTH USER:", {
-          id: existingUser._id.toString(),
-          name: existingUser.fullName,
-          email: existingUser.email,
-          role: existingUser.role,
-        });
         return {
-          id: existingUser._id.toString(),
-          name: existingUser.fullName,
-          email: existingUser.email,
-          role: existingUser.role as UserRole,
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          role: user.role as UserRole,
         };
       },
     }),
@@ -72,6 +60,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     async session({ session, token }) {
       if (session.user) {
         session.user.id = (token.id as string) ?? "";
+
         session.user.role = (token.role as UserRole) ?? "user";
       }
 

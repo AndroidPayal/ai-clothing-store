@@ -1,19 +1,34 @@
 import { NextResponse } from "next/server";
-import { auth } from "@/auth";
+
 import connectDB from "@/lib/mongodb";
 import Cart from "@/models/Cart";
+import { getAuthenticatedUser } from "@/lib/getAuthenticatedUser";
 
-export async function GET() {
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "http://localhost:8081",
+  "Access-Control-Allow-Methods": "GET, PUT, OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type, Authorization",
+};
+
+export async function OPTIONS() {
+  return new NextResponse(null, {
+    status: 204,
+    headers: corsHeaders,
+  });
+}
+
+export async function GET(request: Request) {
   try {
-    const session = await auth();
+    const user = await getAuthenticatedUser(request);
 
-    if (!session?.user?.id) {
+    if (!user?.id) {
       return NextResponse.json(
         {
           message: "Unauthorized",
         },
         {
           status: 401,
+          headers: corsHeaders,
         },
       );
     }
@@ -21,7 +36,7 @@ export async function GET() {
     await connectDB();
 
     const cart = await Cart.findOne({
-      userId: session.user.id,
+      userId: user.id,
     });
 
     return NextResponse.json(
@@ -32,6 +47,7 @@ export async function GET() {
       },
       {
         status: 200,
+        headers: corsHeaders,
       },
     );
   } catch (error) {
@@ -43,6 +59,7 @@ export async function GET() {
       },
       {
         status: 500,
+        headers: corsHeaders,
       },
     );
   }
@@ -50,15 +67,16 @@ export async function GET() {
 
 export async function PUT(request: Request) {
   try {
-    const session = await auth();
+    const user = await getAuthenticatedUser(request);
 
-    if (!session?.user?.id) {
+    if (!user?.id) {
       return NextResponse.json(
         {
           message: "Unauthorized",
         },
         {
           status: 401,
+          headers: corsHeaders,
         },
       );
     }
@@ -74,6 +92,7 @@ export async function PUT(request: Request) {
         },
         {
           status: 400,
+          headers: corsHeaders,
         },
       );
     }
@@ -82,10 +101,10 @@ export async function PUT(request: Request) {
 
     const cart = await Cart.findOneAndUpdate(
       {
-        userId: session.user.id,
+        userId: user.id,
       },
       {
-        userId: session.user.id,
+        userId: user.id,
         items,
       },
       {
@@ -102,6 +121,7 @@ export async function PUT(request: Request) {
       },
       {
         status: 200,
+        headers: corsHeaders,
       },
     );
   } catch (error) {
@@ -113,6 +133,7 @@ export async function PUT(request: Request) {
       },
       {
         status: 500,
+        headers: corsHeaders,
       },
     );
   }
