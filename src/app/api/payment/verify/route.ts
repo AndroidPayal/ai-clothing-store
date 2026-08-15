@@ -3,18 +3,32 @@ import crypto from "crypto";
 import { auth } from "@/auth";
 import connectDB from "@/lib/mongodb";
 import Order from "@/models/Order";
+import { getAuthenticatedUser } from "@/lib/getAuthenticatedUser";
 
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "http://localhost:8081",
+  "Access-Control-Allow-Methods": "POST, OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type, Authorization",
+};
+
+export async function OPTIONS() {
+  return new NextResponse(null, {
+    status: 204,
+    headers: corsHeaders,
+  });
+}
 export async function POST(request: Request) {
   try {
-    const session = await auth();
+    const user = await getAuthenticatedUser(request);
 
-    if (!session?.user?.id) {
+    if (!user?.id) {
       return NextResponse.json(
         {
           message: "Unauthorized",
         },
         {
           status: 401,
+          headers: corsHeaders,
         },
       );
     }
@@ -45,6 +59,7 @@ export async function POST(request: Request) {
         },
         {
           status: 400,
+          headers: corsHeaders,
         },
       );
     }
@@ -61,6 +76,7 @@ export async function POST(request: Request) {
         },
         {
           status: 400,
+          headers: corsHeaders,
         },
       );
     }
@@ -68,7 +84,7 @@ export async function POST(request: Request) {
     await connectDB();
 
     const newOrder = await Order.create({
-      userId: session.user.id,
+      userId: user.id,
 
       items,
 
@@ -83,6 +99,7 @@ export async function POST(request: Request) {
       },
 
       status: "Confirmed",
+      headers: corsHeaders,
     });
 
     return NextResponse.json(
@@ -92,6 +109,7 @@ export async function POST(request: Request) {
       },
       {
         status: 201,
+        headers: corsHeaders,
       },
     );
   } catch (error) {
@@ -106,6 +124,7 @@ export async function POST(request: Request) {
       },
       {
         status: 500,
+        headers: corsHeaders,
       },
     );
   }

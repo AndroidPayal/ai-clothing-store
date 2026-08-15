@@ -1,23 +1,35 @@
 import { NextResponse } from "next/server";
-import { auth } from "@/auth";
 import Razorpay from "razorpay";
+import { getAuthenticatedUser } from "@/lib/getAuthenticatedUser";
 
 const razorpay = new Razorpay({
   key_id: process.env.RAZORPAY_KEY_ID!,
   key_secret: process.env.RAZORPAY_KEY_SECRET!,
 });
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "http://localhost:8081",
+  "Access-Control-Allow-Methods": "POST, OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type, Authorization",
+};
 
+export async function OPTIONS() {
+  return new NextResponse(null, {
+    status: 204,
+    headers: corsHeaders,
+  });
+}
 export async function POST(request: Request) {
   try {
-    const session = await auth();
+    const user = await getAuthenticatedUser(request);
 
-    if (!session?.user?.id) {
+    if (!user?.id) {
       return NextResponse.json(
         {
           message: "Unauthorized",
         },
         {
           status: 401,
+          headers: corsHeaders,
         },
       );
     }
@@ -33,6 +45,7 @@ export async function POST(request: Request) {
         },
         {
           status: 400,
+          headers: corsHeaders,
         },
       );
     }
@@ -51,6 +64,7 @@ export async function POST(request: Request) {
       },
       {
         status: 200,
+        headers: corsHeaders,
       },
     );
   } catch (error) {
@@ -65,6 +79,7 @@ export async function POST(request: Request) {
       },
       {
         status: 500,
+        headers: corsHeaders,
       },
     );
   }

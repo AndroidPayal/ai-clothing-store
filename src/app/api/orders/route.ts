@@ -1,15 +1,24 @@
 import { NextResponse } from "next/server";
-import { auth } from "@/auth";
 import connectDB from "@/lib/mongodb";
 import Order from "@/models/Order";
+import { getAuthenticatedUser } from "@/lib/getAuthenticatedUser";
 
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "http://localhost:8081",
+  "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type, Authorization",
+};
+export async function OPTIONS() {
+  return new NextResponse(null, {
+    status: 204,
+    headers: corsHeaders,
+  });
+}
 export async function POST(request: Request) {
   try {
-    const session = await auth();
+    const user = await getAuthenticatedUser(request);
 
-    console.log("ORDER SESSION:", session);
-
-    if (!session?.user?.id) {
+    if (!user?.id) {
       console.log("NO USER ID FOUND IN SESSION");
 
       return NextResponse.json(
@@ -18,6 +27,7 @@ export async function POST(request: Request) {
         },
         {
           status: 401,
+          headers: corsHeaders,
         },
       );
     }
@@ -35,6 +45,7 @@ export async function POST(request: Request) {
         },
         {
           status: 400,
+          headers: corsHeaders,
         },
       );
     }
@@ -44,7 +55,7 @@ export async function POST(request: Request) {
     console.log("MongoDB connected");
 
     const newOrder = await Order.create({
-      userId: session.user.id,
+      userId: user.id,
       items,
       total,
       customer,
@@ -59,6 +70,7 @@ export async function POST(request: Request) {
       },
       {
         status: 201,
+        headers: corsHeaders,
       },
     );
   } catch (error) {
@@ -71,24 +83,24 @@ export async function POST(request: Request) {
       },
       {
         status: 500,
+        headers: corsHeaders,
       },
     );
   }
 }
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
-    const session = await auth();
+    const user = await getAuthenticatedUser(request);
 
-    console.log("GET ORDERS SESSION:", session);
-
-    if (!session?.user?.id) {
+    if (!user?.id) {
       return NextResponse.json(
         {
           message: "Unauthorized",
         },
         {
           status: 401,
+          headers: corsHeaders,
         },
       );
     }
@@ -96,7 +108,7 @@ export async function GET() {
     await connectDB();
 
     const orders = await Order.find({
-      userId: session.user.id,
+      userId: user.id,
     }).sort({
       createdAt: -1,
     });
@@ -109,6 +121,7 @@ export async function GET() {
       },
       {
         status: 200,
+        headers: corsHeaders,
       },
     );
   } catch (error) {
@@ -120,6 +133,7 @@ export async function GET() {
       },
       {
         status: 500,
+        headers: corsHeaders,
       },
     );
   }

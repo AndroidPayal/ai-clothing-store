@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import connectDB from "@/lib/mongodb";
 import Order from "@/models/Order";
+import { getAuthenticatedUser } from "@/lib/getAuthenticatedUser";
 
 type RouteContext = {
   params: Promise<{
@@ -9,17 +10,30 @@ type RouteContext = {
   }>;
 };
 
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "http://localhost:8081",
+  "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type, Authorization",
+};
+export async function OPTIONS() {
+  return new NextResponse(null, {
+    status: 204,
+    headers: corsHeaders,
+  });
+}
+
 export async function GET(request: Request, context: RouteContext) {
   try {
-    const session = await auth();
+    const user = await getAuthenticatedUser(request);
 
-    if (!session?.user?.id) {
+    if (!user?.id) {
       return NextResponse.json(
         {
           message: "Unauthorized",
         },
         {
           status: 401,
+          headers: corsHeaders,
         },
       );
     }
@@ -30,7 +44,7 @@ export async function GET(request: Request, context: RouteContext) {
 
     const order = await Order.findOne({
       _id: id,
-      userId: session.user.id,
+      userId: user.id,
     });
 
     if (!order) {
@@ -40,6 +54,7 @@ export async function GET(request: Request, context: RouteContext) {
         },
         {
           status: 404,
+          headers: corsHeaders,
         },
       );
     }
@@ -50,6 +65,7 @@ export async function GET(request: Request, context: RouteContext) {
       },
       {
         status: 200,
+        headers: corsHeaders,
       },
     );
   } catch (error) {
@@ -61,6 +77,7 @@ export async function GET(request: Request, context: RouteContext) {
       },
       {
         status: 500,
+        headers: corsHeaders,
       },
     );
   }
