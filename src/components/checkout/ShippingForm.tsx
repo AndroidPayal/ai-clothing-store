@@ -212,56 +212,150 @@ export default function ShippingForm() {
   };
 
   return (
-    <div>
-      <h2 className="mb-5 text-2xl font-semibold">Shipping Address</h2>
+    <div className="border border-kora bg-muslin p-6 sm:p-8">
+      <div className="border-b border-kora pb-5">
+        <p className="font-utility text-[9px] tracking-[0.2em] text-awadh-ink">
+          DELIVERY
+        </p>
 
-      <form className="space-y-4" onSubmit={handlePlaceOrder}>
-        <input
-          name="fullName"
-          value={formData.fullName}
-          onChange={handleChange}
-          placeholder="Full Name"
-          className="w-full rounded-lg border p-3"
-        />
+        <h2 className="mt-3 font-display text-3xl text-thread-black">
+          Shipping address
+        </h2>
 
-        <input
-          name="phone"
-          value={formData.phone}
-          onChange={handleChange}
-          placeholder="Phone Number"
-          className="w-full rounded-lg border p-3"
-        />
+        <p className="mt-3 font-editorial text-sm leading-relaxed text-thread-grey">
+          Where should we send your pieces?
+        </p>
+      </div>
 
-        <textarea
-          name="address"
-          value={formData.address}
-          onChange={handleChange}
-          rows={4}
-          placeholder="Address"
-          className="w-full rounded-lg border p-3"
-        />
+      <form className="mt-8 space-y-6" onSubmit={handlePlaceOrder}>
+        {/* Full name */}
+        <div>
+          <label
+            htmlFor="fullName"
+            className="mb-2 block font-utility text-[8px] tracking-[0.16em] text-thread-grey"
+          >
+            FULL NAME
+          </label>
 
-        <input
-          name="city"
-          value={formData.city}
-          onChange={handleChange}
-          placeholder="City"
-          className="w-full rounded-lg border p-3"
-        />
+          <input
+            id="fullName"
+            name="fullName"
+            value={formData.fullName}
+            onChange={handleChange}
+            placeholder="Your full name"
+            className="w-full border border-kora bg-transparent px-4 py-3 font-editorial text-base text-thread-black outline-none transition-colors placeholder:text-thread-grey/50 focus:border-thread-black"
+          />
+        </div>
 
-        <input
-          name="pinCode"
-          value={formData.pinCode}
-          onChange={handleChange}
-          placeholder="Pin Code"
-          className="w-full rounded-lg border p-3"
-        />
+        {/* Phone */}
+        <div>
+          <label
+            htmlFor="phone"
+            className="mb-2 block font-utility text-[8px] tracking-[0.16em] text-thread-grey"
+          >
+            PHONE NUMBER
+          </label>
 
-        <Button
-          text={isProcessing ? "Processing..." : "Pay & Place Order"}
-          disabled={!isFormValid || cart.length === 0 || isProcessing}
+          <input
+            id="phone"
+            name="phone"
+            value={formData.phone}
+            onChange={handleChange}
+            placeholder="Your phone number"
+            className="w-full border border-kora bg-transparent px-4 py-3 font-editorial text-base text-thread-black outline-none transition-colors placeholder:text-thread-grey/50 focus:border-thread-black"
+          />
+        </div>
+
+        {/* Address */}
+        <div>
+          <label
+            htmlFor="address"
+            className="mb-2 block font-utility text-[8px] tracking-[0.16em] text-thread-grey"
+          >
+            ADDRESS
+          </label>
+
+          <textarea
+            id="address"
+            name="address"
+            value={formData.address}
+            onChange={handleChange}
+            rows={4}
+            placeholder="House number, street, locality..."
+            className="w-full resize-none border border-kora bg-transparent px-4 py-3 font-editorial text-base text-thread-black outline-none transition-colors placeholder:text-thread-grey/50 focus:border-thread-black"
+          />
+        </div>
+
+        {/* City + Pin */}
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+          <div>
+            <label
+              htmlFor="city"
+              className="mb-2 block font-utility text-[8px] tracking-[0.16em] text-thread-grey"
+            >
+              CITY
+            </label>
+
+            <input
+              id="city"
+              name="city"
+              value={formData.city}
+              onChange={handleChange}
+              placeholder="City"
+              className="w-full border border-kora bg-transparent px-4 py-3 font-editorial text-base text-thread-black outline-none transition-colors placeholder:text-thread-grey/50 focus:border-thread-black"
+            />
+          </div>
+
+          <div>
+            <label
+              htmlFor="pinCode"
+              className="mb-2 block font-utility text-[8px] tracking-[0.16em] text-thread-grey"
+            >
+              PIN CODE
+            </label>
+
+            <input
+              id="pinCode"
+              name="pinCode"
+              value={formData.pinCode}
+              onChange={handleChange}
+              placeholder="PIN code"
+              className="w-full border border-kora bg-transparent px-4 py-3 font-editorial text-base text-thread-black outline-none transition-colors placeholder:text-thread-grey/50 focus:border-thread-black"
+            />
+          </div>
+        </div>
+
+        {/* Payment note */}
+        <div className="border-y border-kora py-5">
+          <div className="flex items-center justify-between">
+            <span className="font-utility text-[8px] tracking-[0.16em] text-thread-grey">
+              PAYMENT
+            </span>
+
+            <span className="font-utility text-[8px] tracking-[0.16em] text-thread-black">
+              RAZORPAY · SECURE
+            </span>
+          </div>
+
+          <p className="mt-3 font-editorial text-sm leading-relaxed text-thread-grey">
+            You{`'`}ll be securely redirected to complete your payment.
+          </p>
+        </div>
+
+        {/* Submit */}
+        <button
           type="submit"
-        />
+          disabled={!isFormValid || cart.length === 0 || isProcessing}
+          className="flex w-full items-center justify-between bg-thread-black px-5 py-4 font-utility text-[9px] tracking-[0.2em] text-muslin transition-colors hover:bg-awadh-ink disabled:cursor-not-allowed disabled:bg-thread-grey"
+        >
+          <span>{isProcessing ? "PROCESSING..." : "PAY & PLACE ORDER"}</span>
+
+          <span className="text-base">→</span>
+        </button>
+
+        <p className="text-center font-editorial text-xs italic text-thread-grey">
+          Your payment is processed securely.
+        </p>
       </form>
     </div>
   );
