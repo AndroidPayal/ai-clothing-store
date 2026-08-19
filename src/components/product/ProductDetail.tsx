@@ -1,13 +1,14 @@
 "use client";
 
 import Image from "next/image";
-import { useState } from "react";
-
-import Button from "@/components/ui/Button";
+import Link from "next/link";
+import { useState, useEffect } from "react";
+import { Heart, Minus, Plus, ArrowLeft } from "lucide-react";
+import { toast } from "sonner";
+import ProductCard from "@/components/product/ProductCard";
 import useCart from "@/hooks/useCart";
 import useWishlist from "@/hooks/useWishlist";
 import { Product } from "@/types/Product";
-import { toast } from "sonner";
 
 type ProductDetailProps = {
   product: Product;
@@ -18,125 +19,298 @@ export default function ProductDetail({ product }: ProductDetailProps) {
   const { addToWishlist } = useWishlist();
 
   const [quantity, setQuantity] = useState(1);
+  const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
+
+  useEffect(() => {
+    const fetchRelatedProducts = async () => {
+      try {
+        const response = await fetch("/api/products");
+
+        if (!response.ok) return;
+
+        const data = await response.json();
+
+        const related = data.products
+          .filter(
+            (item: Product) =>
+              item.id !== product.id &&
+              item.category.toLowerCase() === product.category.toLowerCase(),
+          )
+          .slice(0, 4);
+
+        setRelatedProducts(related);
+      } catch (error) {
+        console.error("Related products fetch error:", error);
+      }
+    };
+
+    fetchRelatedProducts();
+  }, [product.id, product.category]);
 
   return (
-    <section className="mx-auto max-w-6xl p-8">
-      <div className="grid grid-cols-1 gap-12 md:grid-cols-2">
-        {/* Left */}
+    <main className="min-h-screen bg-muslin">
+      {/* Breadcrumb */}
+      <div className="mx-auto max-w-[1440px] px-6 pt-8 sm:px-10 lg:px-16">
+        <Link
+          href="/products"
+          className="inline-flex items-center gap-3 font-utility text-[9px] tracking-[0.2em] text-thread-grey transition-colors hover:text-thread-black"
+        >
+          <ArrowLeft size={14} strokeWidth={1.5} />
+          BACK TO COLLECTION
+        </Link>
+      </div>
 
-        <div className="flex items-center justify-center rounded-xl bg-gray-100 p-6">
-          <Image
-            src={product.image}
-            alt={product.title}
-            width={500}
-            height={500}
-            className="rounded-xl object-cover shadow-lg transition duration-300 hover:scale-105"
-          />
-        </div>
+      <section className="mx-auto max-w-[1440px] px-6 py-12 sm:px-10 sm:py-16 lg:px-16 lg:py-20">
+        <div className="grid gap-12 lg:grid-cols-[1.1fr_0.9fr] lg:gap-20">
+          {/* PRODUCT IMAGE */}
+          <div>
+            <div className="relative overflow-hidden bg-kora">
+              <div className="relative aspect-[4/5] w-full">
+                <Image
+                  src={product.image}
+                  alt={product.title}
+                  fill
+                  priority
+                  sizes="(max-width: 1024px) 100vw, 60vw"
+                  className="object-cover transition-transform duration-700 hover:scale-[1.02]"
+                />
+              </div>
 
-        {/* Right */}
+              {!product.inStock && (
+                <div className="absolute inset-0 flex items-center justify-center bg-thread-black/40">
+                  <span className="font-utility text-[10px] tracking-[0.2em] text-muslin">
+                    CURRENTLY UNAVAILABLE
+                  </span>
+                </div>
+              )}
+            </div>
 
-        <div className="flex flex-col gap-5">
-          <h1 className="text-4xl font-bold">{product.title}</h1>
+            {/* Image note */}
+            <div className="flex items-center justify-between border-x border-b border-kora px-4 py-3">
+              <span className="font-utility text-[8px] tracking-[0.18em] text-thread-grey">
+                SOZAN / NAZM
+              </span>
 
-          <p className="text-lg text-gray-500">{product.category}</p>
-
-          <div className="flex items-center gap-2">
-            <span className="text-lg text-yellow-500">★★★★★</span>
-
-            <span className="text-sm text-gray-500">4.8 (120 Reviews)</span>
-          </div>
-
-          <p className="text-3xl font-bold text-blue-600">₹{product.price}</p>
-
-          <span
-            className={`
-              w-fit
-              rounded-full
-              px-4
-              py-2
-              text-sm
-              font-semibold
-              ${
-                product.inStock
-                  ? "bg-green-100 text-green-700"
-                  : "bg-red-100 text-red-700"
-              }
-            `}
-          >
-            {product.inStock ? "In Stock" : "Out of Stock"}
-          </span>
-
-          <p className="leading-7 text-gray-600">{product.description}</p>
-
-          {/* Quantity */}
-
-          <div className="mt-2 flex items-center gap-5">
-            <span className="font-semibold">Quantity</span>
-
-            <div className="flex items-center overflow-hidden rounded-lg border">
-              <button
-                className="cursor-pointer px-4 py-2 hover:bg-gray-100"
-                onClick={() => {
-                  if (quantity > 1) {
-                    setQuantity(quantity - 1);
-                  }
-                }}
-              >
-                −
-              </button>
-
-              <span className="px-5 font-semibold">{quantity}</span>
-
-              <button
-                className="cursor-pointer px-4 py-2 hover:bg-gray-100"
-                onClick={() => setQuantity(quantity + 1)}
-              >
-                +
-              </button>
+              <span className="font-utility text-[8px] tracking-[0.18em] text-thread-grey">
+                OBJECT 01
+              </span>
             </div>
           </div>
 
-          {/* Buttons */}
+          {/* PRODUCT INFORMATION */}
+          <div className="flex flex-col lg:pt-6">
+            {/* Category */}
+            <div className="flex items-center gap-4">
+              <span className="h-px w-8 bg-awadh-ink" />
 
-          <div className="mt-6 flex gap-4">
-            <Button
-              text="🛒 Add To Cart"
-              disabled={!product.inStock}
-              onClick={() => {
-                addToCart(product, quantity);
-                toast.success("Added to Cart 🛒");
-              }}
-            />
+              <span className="font-utility text-[9px] tracking-[0.22em] text-awadh-ink">
+                {product.category.toUpperCase()}
+              </span>
+            </div>
 
-            <Button
-              text="❤️ Wishlist"
-              onClick={() => {
-                addToWishlist(product);
-                toast.success("Added to Wishlist ❤️");
-              }}
-            />
-          </div>
+            {/* Title */}
+            <h1 className="mt-8 max-w-xl font-display text-5xl leading-[0.95] tracking-tight text-thread-black sm:text-6xl lg:text-7xl">
+              {product.title}
+            </h1>
 
-          {/* Delivery */}
-          <div className="mt-8 space-y-3 rounded-xl border border-gray-200 bg-gray-50 p-5 text-gray-800">
-            <p className="flex items-center gap-2">
-              <span>🚚</span>
-              <span>Free Delivery</span>
+            {/* Price */}
+            <p className="mt-8 font-editorial text-2xl text-thread-black">
+              ₹ {product.price.toLocaleString("en-IN")}
             </p>
 
-            <p className="flex items-center gap-2">
-              <span>↩️</span>
-              <span>7 Days Easy Return</span>
-            </p>
+            {/* Availability */}
+            <div className="mt-6 border-y border-kora py-4">
+              <span
+                className={`font-utility text-[9px] tracking-[0.18em] ${
+                  product.inStock ? "text-thread-black" : "text-thread-grey"
+                }`}
+              >
+                {product.inStock
+                  ? "AVAILABLE / READY TO SHIP"
+                  : "CURRENTLY UNAVAILABLE"}
+              </span>
+            </div>
 
-            <p className="flex items-center gap-2">
-              <span>🔒</span>
-              <span>Secure Checkout</span>
+            {/* Description */}
+            <div className="mt-8">
+              <p className="max-w-xl font-editorial text-lg leading-relaxed text-thread-grey">
+                {product.description}
+              </p>
+            </div>
+
+            {/* Quantity */}
+            <div className="mt-10">
+              <p className="mb-3 font-utility text-[9px] tracking-[0.18em] text-thread-grey">
+                QUANTITY
+              </p>
+
+              <div className="flex w-fit items-center border border-thread-black">
+                <button
+                  type="button"
+                  aria-label="Decrease quantity"
+                  disabled={quantity <= 1}
+                  onClick={() =>
+                    setQuantity((current) => Math.max(1, current - 1))
+                  }
+                  className="flex h-11 w-11 items-center justify-center transition-colors hover:bg-thread-black hover:text-muslin disabled:cursor-not-allowed disabled:opacity-30"
+                >
+                  <Minus size={15} strokeWidth={1.5} />
+                </button>
+
+                <span className="flex h-11 w-12 items-center justify-center border-x border-thread-black font-utility text-[10px]">
+                  {quantity}
+                </span>
+
+                <button
+                  type="button"
+                  aria-label="Increase quantity"
+                  onClick={() => setQuantity((current) => current + 1)}
+                  className="flex h-11 w-11 items-center justify-center transition-colors hover:bg-thread-black hover:text-muslin"
+                >
+                  <Plus size={15} strokeWidth={1.5} />
+                </button>
+              </div>
+            </div>
+
+            {/* Actions */}
+            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+              <button
+                type="button"
+                disabled={!product.inStock}
+                onClick={() => {
+                  addToCart(product, quantity);
+                  toast.success("Added to Bag");
+                }}
+                className="
+                  flex
+                  flex-1
+                  items-center
+                  justify-center
+                  border
+                  border-thread-black
+                  bg-thread-black
+                  px-6
+                  py-4
+                  font-utility
+                  text-[9px]
+                  tracking-[0.2em]
+                  text-muslin
+                  transition-colors
+                  hover:bg-transparent
+                  hover:text-thread-black
+                  disabled:cursor-not-allowed
+                  disabled:border-thread-grey
+                  disabled:bg-thread-grey
+                "
+              >
+                {product.inStock ? "ADD TO BAG" : "UNAVAILABLE"}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  addToWishlist(product);
+                  toast.success("Added to Wishlist");
+                }}
+                className="
+                  flex
+                  items-center
+                  justify-center
+                  gap-3
+                  border
+                  border-thread-black
+                  px-6
+                  py-4
+                  font-utility
+                  text-[9px]
+                  tracking-[0.2em]
+                  text-thread-black
+                  transition-colors
+                  hover:bg-thread-black
+                  hover:text-muslin
+                "
+              >
+                <Heart size={16} strokeWidth={1.5} />
+                WISHLIST
+              </button>
+            </div>
+
+            {/* Product promises */}
+            <div className="mt-10 border-t border-kora">
+              <div className="flex items-center justify-between border-b border-kora py-5">
+                <span className="font-utility text-[9px] tracking-[0.16em] text-thread-grey">
+                  DELIVERY
+                </span>
+
+                <span className="font-editorial text-base text-thread-black">
+                  Free delivery
+                </span>
+              </div>
+
+              <div className="flex items-center justify-between border-b border-kora py-5">
+                <span className="font-utility text-[9px] tracking-[0.16em] text-thread-grey">
+                  RETURNS
+                </span>
+
+                <span className="font-editorial text-base text-thread-black">
+                  7 days easy return
+                </span>
+              </div>
+
+              <div className="flex items-center justify-between border-b border-kora py-5">
+                <span className="font-utility text-[9px] tracking-[0.16em] text-thread-grey">
+                  CHECKOUT
+                </span>
+
+                <span className="font-editorial text-base text-thread-black">
+                  Secure checkout
+                </span>
+              </div>
+            </div>
+
+            {/* Closing statement */}
+            <p className="mt-10 max-w-md font-editorial text-base italic leading-relaxed text-thread-grey">
+              A considered piece, chosen to become part of your story.
             </p>
           </div>
         </div>
-      </div>
-    </section>
+      </section>
+
+      {relatedProducts.length > 0 && (
+        <section className="border-t border-kora bg-muslin px-6 py-20 sm:px-10 sm:py-28 lg:px-16">
+          <div className="mx-auto max-w-[1440px]">
+            <div className="flex flex-col justify-between gap-6 border-b border-kora pb-8 sm:flex-row sm:items-end">
+              <div>
+                <p className="font-utility text-[9px] tracking-[0.22em] text-awadh-ink">
+                  CONTINUE EXPLORING
+                </p>
+
+                <h2 className="mt-5 font-display text-4xl leading-none text-thread-black sm:text-5xl">
+                  You may also like.
+                </h2>
+              </div>
+
+              <Link
+                href={`/products?category=${encodeURIComponent(product.category)}`}
+                className="font-utility text-[9px] tracking-[0.18em] text-thread-black transition-colors hover:text-awadh-ink"
+              >
+                VIEW ALL {product.category.toUpperCase()} →
+              </Link>
+            </div>
+
+            <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-12 sm:grid-cols-2 lg:grid-cols-4">
+              {relatedProducts.map((relatedProduct) => (
+                <ProductCard
+                  key={relatedProduct.id}
+                  product={relatedProduct}
+                  addToCart={addToCart}
+                  addToWishlist={addToWishlist}
+                />
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+    </main>
   );
 }
