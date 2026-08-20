@@ -1,6 +1,5 @@
 "use client";
 
-import Button from "@/components/ui/Button";
 import useCart from "@/hooks/useCart";
 import { useRouter } from "next/navigation";
 import { useState } from "react";

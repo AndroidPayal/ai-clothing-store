@@ -1,11 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useSession } from "next-auth/react";
+
 import { Order } from "@/types/Order";
 import OrderCard from "@/components/orders/OrderCard";
 import EmptyState from "@/components/common/EmptyState";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
-import { useSession } from "next-auth/react";
 
 type MongoDBOrder = {
   _id: string;
@@ -20,10 +21,11 @@ export default function Orders() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
+
   const { status } = useSession();
 
   useEffect(() => {
-    if (status !== "authenticated") return; // for user who is not logged in
+    if (status !== "authenticated") return;
 
     const fetchOrders = async () => {
       try {
@@ -62,49 +64,75 @@ export default function Orders() {
     };
 
     fetchOrders();
-  }, []);
+  }, [status]);
 
   return (
     <ProtectedRoute>
-      <div className="mx-auto max-w-5xl p-8">
-        <h1 className="mb-8 text-4xl font-bold">My Orders</h1>
+      <main className="min-h-screen bg-muslin px-6 py-16 sm:px-10 sm:py-20 lg:px-16">
+        <div className="mx-auto max-w-[1440px]">
+          {/* Page heading */}
+          <div className="border-b border-kora pb-8">
+            <div className="flex flex-col justify-between gap-6 sm:flex-row sm:items-end">
+              <div>
+                <p className="font-utility text-[9px] tracking-[0.22em] text-awadh-ink">
+                  YOUR STORY — ORDERS
+                </p>
 
-        {/* Loading */}
-        {(isLoading || status === "loading") && (
-          <div className="flex min-h-[40vh] items-center justify-center">
-            <p className="text-lg font-medium text-gray-600">
-              Loading your orders...
-            </p>
+                <h1 className="mt-6 font-display text-5xl leading-[0.95] tracking-tight text-thread-black sm:text-6xl lg:text-7xl">
+                  Pieces you{`'`}ve
+                  <br />
+                  chosen.
+                </h1>
+              </div>
+
+              {!isLoading && !error && orders.length > 0 && (
+                <p className="font-utility text-[9px] tracking-[0.18em] text-thread-grey">
+                  {orders.length} {orders.length === 1 ? "ORDER" : "ORDERS"}{" "}
+                  PLACED
+                </p>
+              )}
+            </div>
           </div>
-        )}
 
-        {/* Error */}
-        {!isLoading && error && (
-          <div className="rounded-lg border border-red-200 bg-red-50 p-6 text-center">
-            <p className="font-medium text-red-600">{error}</p>
-          </div>
-        )}
+          {/* Loading */}
+          {(isLoading || status === "loading") && (
+            <div className="flex min-h-[45vh] items-center justify-center">
+              <p className="font-editorial text-xl text-thread-grey">
+                Gathering your story...
+              </p>
+            </div>
+          )}
 
-        {/* Orders */}
-        {!isLoading && !error && orders.length > 0 && (
-          <div className="grid gap-5">
-            {orders.map((order) => (
-              <OrderCard key={order.id} order={order} />
-            ))}
-          </div>
-        )}
+          {/* Error */}
+          {!isLoading && error && (
+            <div className="mt-12 border border-red-200 bg-red-50 p-6 text-center">
+              <p className="font-editorial text-lg text-red-600">{error}</p>
+            </div>
+          )}
 
-        {/* Empty State */}
-        {!isLoading && !error && orders.length === 0 && (
-          <EmptyState
-            emoji="📦"
-            title="No Orders Yet"
-            description="You haven't placed any orders."
-            buttonText="Start Shopping"
-            href="/"
-          />
-        )}
-      </div>
+          {/* Orders */}
+          {!isLoading && !error && orders.length > 0 && (
+            <div className="divide-y divide-kora border-b border-kora">
+              {orders.map((order) => (
+                <OrderCard key={order.id} order={order} />
+              ))}
+            </div>
+          )}
+
+          {/* Empty State */}
+          {!isLoading && !error && orders.length === 0 && (
+            <div className="py-20">
+              <EmptyState
+                emoji="📦"
+                title="No Orders Yet"
+                description="The first piece of your story is still waiting to be chosen."
+                buttonText="EXPLORE THE COLLECTION"
+                href="/products"
+              />
+            </div>
+          )}
+        </div>
+      </main>
     </ProtectedRoute>
   );
 }
