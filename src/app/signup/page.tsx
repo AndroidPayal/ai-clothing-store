@@ -5,6 +5,7 @@ import Button from "@/components/ui/Button";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import GuestRoute from "@/components/auth/GuestRoute";
+import Link from "next/link";
 
 export default function Signup() {
   const router = useRouter();
@@ -73,62 +74,117 @@ export default function Signup() {
     }
   };
 
-  return (
-    <GuestRoute>
-      <section className="mx-auto flex min-h-[80vh] max-w-md items-center">
-        <div className="w-full rounded-xl border bg-white p-8 text-gray-900 shadow-lg">
-          <h1 className="mb-2 text-center text-4xl font-bold">
-            Create Account
-          </h1>
+return (
+  <GuestRoute>
+    <main className="min-h-[calc(100vh-72px)] bg-muslin">
+      <section className="mx-auto flex min-h-[calc(100vh-72px)] max-w-[1440px] items-center justify-center px-6 py-16 sm:px-10 lg:px-16">
+        <div className="w-full max-w-md">
+          {/* Editorial label */}
+          <div className="mb-8 flex items-center gap-4">
+            <span className="h-px w-10 bg-awadh-ink" />
 
-          <p className="mb-8 text-center text-gray-500">
-            Join AI Clothing Store
-          </p>
+            <span className="font-utility text-[9px] tracking-[0.22em] text-awadh-ink">
+              ACCOUNT / JOIN
+            </span>
+          </div>
 
-          <div className="space-y-5">
-            <input
-              name="fullName"
-              placeholder="Full Name"
-              value={formData.fullName}
-              onChange={handleChange}
-              className="w-full rounded-lg border border-gray-300 p-3 text-gray-900 outline-none focus:border-blue-500"
-            />
+          {/* Heading */}
+          <div className="border-b border-kora pb-8">
+            <h1 className="font-display text-5xl leading-[0.95] tracking-tight text-thread-black sm:text-6xl">
+              Create
+              <br />
+              your account.
+            </h1>
 
-            <input
-              name="email"
-              type="email"
-              placeholder="Email"
-              value={formData.email}
-              onChange={handleChange}
-              className="w-full rounded-lg border border-gray-300 p-3 text-gray-900 outline-none focus:border-blue-500"
-            />
+            <p className="mt-5 font-editorial text-lg leading-relaxed text-thread-grey">
+              Begin your journey through the collection.
+            </p>
+          </div>
 
-            <input
-              name="password"
-              type="password"
-              placeholder="Password"
-              value={formData.password}
-              onChange={handleChange}
-              className="w-full rounded-lg border border-gray-300 p-3 text-gray-900 outline-none focus:border-blue-500"
-            />
+          {/* Form */}
+          <div className="mt-10 space-y-6">
+            <div>
+              <label className="mb-2 block font-utility text-[9px] tracking-[0.18em] text-thread-grey">
+                FULL NAME
+              </label>
 
-            <input
-              name="confirmPassword"
-              type="password"
-              placeholder="Confirm Password"
-              value={formData.confirmPassword}
-              onChange={handleChange}
-              className="w-full rounded-lg border border-gray-300 p-3 text-gray-900 outline-none focus:border-blue-500"
-            />
+              <input
+                name="fullName"
+                placeholder="Your full name"
+                value={formData.fullName}
+                onChange={handleChange}
+                className="w-full border-b border-kora bg-transparent px-0 py-3 font-editorial text-base text-thread-black outline-none transition-colors placeholder:text-thread-grey/60 focus:border-awadh-ink"
+              />
+            </div>
 
-            <Button
-              text={isLoading ? "Creating Account..." : "Create Account"}
-              disabled={isLoading}
-              onClick={handleSignup}
-            />
+            <div>
+              <label className="mb-2 block font-utility text-[9px] tracking-[0.18em] text-thread-grey">
+                EMAIL
+              </label>
+
+              <input
+                name="email"
+                type="email"
+                placeholder="Your email address"
+                value={formData.email}
+                onChange={handleChange}
+                className="w-full border-b border-kora bg-transparent px-0 py-3 font-editorial text-base text-thread-black outline-none transition-colors placeholder:text-thread-grey/60 focus:border-awadh-ink"
+              />
+            </div>
+
+            <div>
+              <label className="mb-2 block font-utility text-[9px] tracking-[0.18em] text-thread-grey">
+                PASSWORD
+              </label>
+
+              <input
+                name="password"
+                type="password"
+                placeholder="Create a password"
+                value={formData.password}
+                onChange={handleChange}
+                className="w-full border-b border-kora bg-transparent px-0 py-3 font-editorial text-base text-thread-black outline-none transition-colors placeholder:text-thread-grey/60 focus:border-awadh-ink"
+              />
+            </div>
+
+            <div>
+              <label className="mb-2 block font-utility text-[9px] tracking-[0.18em] text-thread-grey">
+                CONFIRM PASSWORD
+              </label>
+
+              <input
+                name="confirmPassword"
+                type="password"
+                placeholder="Repeat your password"
+                value={formData.confirmPassword}
+                onChange={handleChange}
+                className="w-full border-b border-kora bg-transparent px-0 py-3 font-editorial text-base text-thread-black outline-none transition-colors placeholder:text-thread-grey/60 focus:border-awadh-ink"
+              />
+            </div>
+
+            <div className="pt-4">
+              <Button
+                text={isLoading ? "CREATING ACCOUNT..." : "CREATE ACCOUNT"}
+                disabled={isLoading}
+                onClick={handleSignup}
+              />
+            </div>
+          </div>
+
+          <div className="mt-8 border-t border-kora pt-6 text-center">
+            <p className="font-editorial text-sm text-thread-grey">
+              Already have an account?{" "}
+              <Link
+                href="/login"
+                className="font-utility text-[9px] tracking-[0.14em] text-thread-black transition-colors hover:text-awadh-ink"
+              >
+                LOGIN
+              </Link>
+            </p>
           </div>
         </div>
       </section>
-    </GuestRoute>
-  );
+    </main>
+  </GuestRoute>
+);
 }
