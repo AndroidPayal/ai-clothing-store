@@ -1,19 +1,20 @@
+import Image from "next/image";
 export default function CraftDiscovery() {
   return (
-    <section className="relative overflow-hidden bg-kora px-6 py-24 sm:px-10 sm:py-32 lg:px-16">
+    <section className="relative overflow-hidden bg-kora px-6 py-16 sm:px-10 sm:py-20 lg:px-16">
       <div className="mx-auto max-w-[1440px]">
         {/* Section label */}
         <div className="flex items-center justify-between border-b border-thread-grey/40 pb-5">
-          <span className="font-utility text-[9px] tracking-[0.22em] text-awadh-ink">
+          {/* <span className="font-utility text-[9px] tracking-[0.22em] text-awadh-ink">
             02 — DISCOVERY
-          </span>
+          </span> */}
 
           <span className="font-utility text-[9px] tracking-[0.18em] text-thread-grey">
             THE THREAD CONTINUES
           </span>
         </div>
 
-        <div className="grid gap-16 py-20 lg:grid-cols-2 lg:items-center lg:gap-24">
+        <div className="grid gap-12 py-14 sm:py-16 lg:gap-20 lg:grid-cols-2 lg:items-center lg:gap-24">
           {/* Left content */}
           <div>
             <div className="mb-8 flex items-center gap-4">
@@ -44,22 +45,38 @@ export default function CraftDiscovery() {
           {/* Right visual composition */}
           <div className="relative min-h-[380px] sm:min-h-[500px] lg:min-h-[600px]">
             {/* Large fabric block */}
-            <div
-              className="
-              absolute
-              right-0
-              top-0
-              h-[72%]
-              w-[78%]
-              border
-              border-thread-grey/30
-              bg-muslin
-              transition-transform
-              duration-700
-              hover:-translate-x-2
-              hover:translate-y-2
-            "
-            />
+            {/* Large silk image */}
+<div
+  className="
+    group
+    absolute
+    right-0
+    top-0
+    h-[72%]
+    w-[78%]
+    overflow-hidden
+    border
+    border-thread-grey/30
+    bg-muslin
+  "
+>
+  <Image
+    src="/images/silk-image.png"
+    alt="Handwoven silk fabric"
+    fill
+    className="
+      object-cover
+      transition-transform
+      duration-1000
+      ease-out
+      group-hover:scale-105
+    "
+    sizes="(max-width: 1024px) 78vw, 40vw"
+  />
+
+  {/* Very subtle overlay */}
+  <div className="absolute inset-0 bg-thread-black/5" />
+</div>
             {/* Small label */}
             <div className="absolute left-0 top-[12%] bg-thread-black px-5 py-4">
               <span className="font-utility text-[9px] tracking-[0.2em] text-muslin">

@@ -30,9 +30,9 @@ export default function CollectionReveal() {
       <div className="mx-auto max-w-[1440px]">
         {/* Section label */}
         <div className="flex items-center justify-between border-b border-kora pb-5">
-          <span className="font-utility text-[9px] tracking-[0.22em] text-awadh-ink">
+          {/* <span className="font-utility text-[9px] tracking-[0.22em] text-awadh-ink">
             03 — COLLECTIONS
-          </span>
+          </span> */}
 
           <span className="font-utility text-[9px] tracking-[0.18em] text-thread-grey">
             FIND YOUR DIRECTION

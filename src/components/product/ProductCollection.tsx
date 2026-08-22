@@ -124,9 +124,9 @@ export default function ProductCollection({
           {variant === "home" ? (
             <div className="flex flex-col justify-between gap-8 md:flex-row md:items-end">
               <div>
-                <p className="font-utility text-[9px] tracking-[0.22em] text-awadh-ink">
+                {/* <p className="font-utility text-[9px] tracking-[0.22em] text-awadh-ink">
                   04 — THE PIECES
-                </p>
+                </p> */}
 
                 <h2 className="mt-6 font-display text-5xl leading-[0.95] tracking-tight text-thread-black sm:text-6xl lg:text-7xl">
                   Pieces to begin

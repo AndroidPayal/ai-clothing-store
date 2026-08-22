@@ -12,6 +12,7 @@ import {
   Package,
   LogIn,
   X,
+  ArrowUpRight,
 } from "lucide-react";
 import { useSession, signOut } from "next-auth/react";
 import { toast } from "sonner";
@@ -29,7 +30,10 @@ const menuItems = [
   { label: "MEN", href: "/products?category=men" },
 ];
 
-export default function Navbar({ cartCount, wishlistCount }: NavbarProps) {
+export default function Navbar({
+  cartCount,
+  wishlistCount,
+}: NavbarProps) {
   const { status } = useSession();
   const isLoggedIn = status === "authenticated";
 
@@ -48,10 +52,15 @@ export default function Navbar({ cartCount, wishlistCount }: NavbarProps) {
     router.push("/");
   };
 
-  const isActive = (href: string) =>
-    pathname === href || pathname.startsWith(`${href}/`);
+  const isActive = (href: string) => {
+    const cleanHref = href.split("?")[0];
 
-  // Prevent background scrolling while menu is open
+    return (
+      pathname === cleanHref ||
+      pathname.startsWith(`${cleanHref}/`)
+    );
+  };
+
   useEffect(() => {
     document.body.style.overflow = menuOpen ? "hidden" : "";
 
@@ -62,27 +71,39 @@ export default function Navbar({ cartCount, wishlistCount }: NavbarProps) {
 
   return (
     <>
-      <header className="sticky top-0 z-50 border-b border-kora bg-muslin/95 backdrop-blur-sm">
-        <nav className="mx-auto flex h-16 max-w-[1440px] items-center justify-between px-5 sm:px-8 lg:px-12">
+      {/* =====================================================
+          MAIN NAVBAR
+      ===================================================== */}
+
+      <header className="sticky top-0 z-50 border-b border-thread-grey/20 bg-muslin/95 backdrop-blur-md">
+        <nav className="mx-auto flex h-[72px] max-w-[1440px] items-center justify-between px-5 sm:px-8 lg:px-12">
+
           {/* LEFT */}
-          <div className="flex items-center gap-5 lg:gap-8">
+          <div className="flex items-center gap-6 lg:gap-9">
+
+            {/* MENU */}
             <button
               type="button"
               onClick={() => setMenuOpen(true)}
-              className="flex items-center gap-2 text-thread-black transition-opacity hover:opacity-60"
+              className="group flex items-center gap-2 text-thread-black"
               aria-label="Open menu"
               aria-expanded={menuOpen}
             >
-              <Menu size={19} strokeWidth={1.5} />
+              <Menu
+                size={19}
+                strokeWidth={1.35}
+                className="transition-transform duration-300 group-hover:rotate-3"
+              />
 
-              <span className="hidden font-utility text-[10px] tracking-[0.18em] sm:inline">
+              <span className="hidden font-utility text-[9px] tracking-[0.22em] sm:inline">
                 MENU
               </span>
             </button>
 
+            {/* SHOP */}
             <Link
               href="/products"
-              className={`hidden font-utility text-[10px] tracking-[0.18em] transition-colors md:block ${
+              className={`hidden font-utility text-[9px] tracking-[0.22em] transition-colors md:block ${
                 isActive("/products")
                   ? "text-awadh-ink"
                   : "text-thread-black hover:text-awadh-ink"
@@ -92,30 +113,40 @@ export default function Navbar({ cartCount, wishlistCount }: NavbarProps) {
             </Link>
           </div>
 
-          {/* CENTER BRAND */}
+          {/* =================================================
+              CENTER BRAND
+          ================================================= */}
+
           <Link
             href="/"
-            className="absolute left-1/2 -translate-x-1/2 text-center"
             onClick={() => setMenuOpen(false)}
+            className="absolute left-1/2 -translate-x-1/2 text-center"
           >
-            <span className="block font-brand text-lg tracking-[0.18em] text-thread-black sm:text-xl">
+            <span className="block font-brand text-[19px] tracking-[0.2em] text-thread-black sm:text-[21px]">
               SOZAN
             </span>
 
-            <span className="block font-utility text-[8px] tracking-[0.34em] text-thread-grey">
+            <span className="mt-0.5 block font-utility text-[7px] tracking-[0.38em] text-thread-grey">
               / NAZM /
             </span>
           </Link>
 
-          {/* RIGHT */}
-          <div className="flex items-center gap-3 sm:gap-5">
+          {/* =================================================
+              RIGHT ACTIONS
+          ================================================= */}
+
+          <div className="flex items-center gap-4 sm:gap-5">
+
             {/* SEARCH */}
             <Link
               href="/products"
               aria-label="Search"
-              className="hidden text-thread-black transition-opacity hover:opacity-60 sm:block"
+              className="hidden text-thread-black transition-colors hover:text-awadh-ink sm:block"
             >
-              <Search size={19} strokeWidth={1.5} />
+              <Search
+                size={18}
+                strokeWidth={1.35}
+              />
             </Link>
 
             {/* WISHLIST */}
@@ -128,10 +159,13 @@ export default function Navbar({ cartCount, wishlistCount }: NavbarProps) {
                   : "text-thread-black hover:text-awadh-ink"
               }`}
             >
-              <Heart size={19} strokeWidth={1.5} />
+              <Heart
+                size={19}
+                strokeWidth={1.35}
+              />
 
               {wishlistCount > 0 && (
-                <span className="absolute -right-3 -top-2 font-utility text-[9px] text-awadh-ink">
+                <span className="absolute -right-3 -top-2 min-w-[12px] text-center font-utility text-[8px] text-awadh-ink">
                   {wishlistCount}
                 </span>
               )}
@@ -147,10 +181,13 @@ export default function Navbar({ cartCount, wishlistCount }: NavbarProps) {
                   : "text-thread-black hover:text-awadh-ink"
               }`}
             >
-              <ShoppingBag size={19} strokeWidth={1.5} />
+              <ShoppingBag
+                size={19}
+                strokeWidth={1.35}
+              />
 
               {cartCount > 0 && (
-                <span className="absolute -right-3 -top-2 font-utility text-[9px] text-awadh-ink">
+                <span className="absolute -right-3 -top-2 min-w-[12px] text-center font-utility text-[8px] text-awadh-ink">
                   {cartCount}
                 </span>
               )}
@@ -158,7 +195,8 @@ export default function Navbar({ cartCount, wishlistCount }: NavbarProps) {
 
             {/* ACCOUNT */}
             {isLoggedIn ? (
-              <div className="flex items-center gap-3 border-l border-kora pl-3 sm:pl-5">
+              <div className="flex items-center gap-4 border-l border-thread-grey/25 pl-4 sm:pl-5">
+
                 <Link
                   href="/orders"
                   aria-label="My orders"
@@ -168,78 +206,112 @@ export default function Navbar({ cartCount, wishlistCount }: NavbarProps) {
                       : "text-thread-black hover:text-awadh-ink"
                   }`}
                 >
-                  <Package size={18} strokeWidth={1.5} />
+                  <Package
+                    size={17}
+                    strokeWidth={1.35}
+                  />
                 </Link>
 
                 <Link
                   href="/orders"
                   aria-label="Account"
-                  className="hidden text-thread-black transition-opacity hover:opacity-60 sm:block"
+                  className="hidden text-thread-black transition-colors hover:text-awadh-ink sm:block"
                 >
-                  <User size={18} strokeWidth={1.5} />
+                  <User
+                    size={18}
+                    strokeWidth={1.35}
+                  />
                 </Link>
 
                 <button
+                  type="button"
                   onClick={handleLogout}
                   aria-label="Logout"
                   className="hidden text-thread-grey transition-colors hover:text-thread-black md:block"
                 >
-                  <LogOut size={17} strokeWidth={1.5} />
+                  <LogOut
+                    size={16}
+                    strokeWidth={1.35}
+                  />
                 </button>
               </div>
             ) : (
               <Link
                 href="/login"
-                className="border-l border-kora pl-3 font-utility text-[10px] tracking-[0.16em] text-thread-black transition-colors hover:text-awadh-ink sm:pl-5"
+                className="flex items-center border-l border-thread-grey/25 pl-4 font-utility text-[9px] tracking-[0.18em] text-thread-black transition-colors hover:text-awadh-ink sm:pl-5"
               >
-                <span className="hidden sm:inline">ACCOUNT</span>
-                <LogIn size={18} strokeWidth={1.5} className="sm:hidden" />
+                <span className="hidden sm:inline">
+                  ACCOUNT
+                </span>
+
+                <LogIn
+                  size={18}
+                  strokeWidth={1.35}
+                  className="sm:hidden"
+                />
               </Link>
             )}
           </div>
         </nav>
       </header>
 
-      {/* MENU DRAWER */}
+      {/* =====================================================
+          MENU DRAWER
+      ===================================================== */}
+
       {menuOpen && (
         <div className="fixed inset-0 z-[100]">
-          {/* Backdrop */}
+
+          {/* BACKDROP */}
           <button
             type="button"
             aria-label="Close menu"
             onClick={() => setMenuOpen(false)}
-            className="absolute inset-0 bg-thread-black/30 backdrop-blur-sm"
+            className="absolute inset-0 bg-thread-black/25 backdrop-blur-[2px]"
           />
 
-          {/* Drawer */}
-          <aside className="relative h-full w-full max-w-md bg-muslin px-6 py-6 shadow-2xl sm:px-10">
-            {/* Drawer header */}
-            <div className="flex items-center justify-between border-b border-kora pb-5">
-              <div>
-                <p className="font-brand text-lg tracking-[0.18em] text-thread-black">
+          {/* DRAWER */}
+          <aside className="relative flex h-full w-full max-w-[460px] flex-col bg-muslin px-6 py-6 shadow-2xl sm:px-10">
+
+            {/* DRAWER HEADER */}
+            <div className="flex items-start justify-between border-b border-thread-grey/25 pb-6">
+
+              <Link
+                href="/"
+                onClick={() => setMenuOpen(false)}
+              >
+                <p className="font-brand text-lg tracking-[0.2em] text-thread-black">
                   SOZAN
                 </p>
 
-                <p className="mt-1 font-utility text-[8px] tracking-[0.3em] text-thread-grey">
+                <p className="mt-1 font-utility text-[7px] tracking-[0.35em] text-thread-grey">
                   / NAZM /
                 </p>
-              </div>
+              </Link>
 
               <button
                 type="button"
                 onClick={() => setMenuOpen(false)}
                 aria-label="Close menu"
-                className="flex h-10 w-10 items-center justify-center border border-kora text-thread-black transition-colors hover:bg-thread-black hover:text-muslin"
+                className="flex h-10 w-10 items-center justify-center border border-thread-grey/30 text-thread-black transition-all duration-300 hover:bg-thread-black hover:text-muslin"
               >
-                <X size={18} strokeWidth={1.5} />
+                <X
+                  size={17}
+                  strokeWidth={1.35}
+                />
               </button>
             </div>
 
-            {/* Navigation */}
-            <div className="py-10">
-              <p className="mb-6 font-utility text-[9px] tracking-[0.22em] text-awadh-ink">
-                EXPLORE
-              </p>
+            {/* NAVIGATION */}
+            <div className="flex-1 py-10">
+
+              <div className="mb-7 flex items-center gap-3">
+                <span className="h-px w-8 bg-awadh-ink" />
+
+                <p className="font-utility text-[9px] tracking-[0.24em] text-awadh-ink">
+                  EXPLORE
+                </p>
+              </div>
 
               <nav className="flex flex-col">
                 {menuItems.map((item, index) => (
@@ -247,48 +319,53 @@ export default function Navbar({ cartCount, wishlistCount }: NavbarProps) {
                     key={item.href}
                     href={item.href}
                     onClick={() => setMenuOpen(false)}
-                    className="group flex items-center justify-between border-b border-kora py-5"
+                    className="group flex items-center justify-between border-b border-thread-grey/20 py-5"
                   >
-                    <div className="flex items-center gap-5">
-                      <span className="font-utility text-[8px] tracking-[0.16em] text-thread-grey">
+                    <div className="flex items-center gap-6">
+
+                      <span className="font-utility text-[8px] tracking-[0.18em] text-thread-grey">
                         0{index + 1}
                       </span>
 
-                      <span className="font-display text-2xl text-thread-black transition-colors group-hover:text-awadh-ink">
+                      <span className="font-display text-[28px] leading-none text-thread-black transition-transform duration-500 group-hover:translate-x-2">
                         {item.label}
                       </span>
                     </div>
 
-                    <span className="text-lg transition-transform duration-300 group-hover:translate-x-1">
-                      →
-                    </span>
+                    <ArrowUpRight
+                      size={19}
+                      strokeWidth={1.25}
+                      className="text-thread-grey transition-all duration-500 group-hover:-translate-y-1 group-hover:translate-x-1 group-hover:text-awadh-ink"
+                    />
                   </Link>
                 ))}
               </nav>
             </div>
 
-            {/* Account links */}
-            <div className="border-t border-kora pt-6">
-              <p className="mb-5 font-utility text-[9px] tracking-[0.22em] text-thread-grey">
+            {/* ACCOUNT */}
+            <div className="border-t border-thread-grey/20 pt-7">
+
+              <p className="mb-5 font-utility text-[8px] tracking-[0.24em] text-thread-grey">
                 YOUR SPACE
               </p>
 
-              <div className="flex flex-col gap-4">
+              <div className="flex flex-wrap gap-x-7 gap-y-5">
+
                 <Link
                   href="/wishlist"
                   onClick={() => setMenuOpen(false)}
-                  className="flex items-center gap-3 font-utility text-[10px] tracking-[0.16em] text-thread-black"
+                  className="flex items-center gap-2 font-utility text-[9px] tracking-[0.18em] text-thread-black transition-colors hover:text-awadh-ink"
                 >
-                  <Heart size={16} strokeWidth={1.5} />
+                  <Heart size={15} strokeWidth={1.35} />
                   WISHLIST
                 </Link>
 
                 <Link
                   href={isLoggedIn ? "/orders" : "/login"}
                   onClick={() => setMenuOpen(false)}
-                  className="flex items-center gap-3 font-utility text-[10px] tracking-[0.16em] text-thread-black"
+                  className="flex items-center gap-2 font-utility text-[9px] tracking-[0.18em] text-thread-black transition-colors hover:text-awadh-ink"
                 >
-                  <User size={16} strokeWidth={1.5} />
+                  <User size={15} strokeWidth={1.35} />
                   {isLoggedIn ? "ACCOUNT" : "SIGN IN"}
                 </Link>
 
@@ -296,19 +373,23 @@ export default function Navbar({ cartCount, wishlistCount }: NavbarProps) {
                   <button
                     type="button"
                     onClick={handleLogout}
-                    className="flex items-center gap-3 font-utility text-[10px] tracking-[0.16em] text-thread-grey"
+                    className="flex items-center gap-2 font-utility text-[9px] tracking-[0.18em] text-thread-grey transition-colors hover:text-thread-black"
                   >
-                    <LogOut size={16} strokeWidth={1.5} />
+                    <LogOut size={15} strokeWidth={1.35} />
                     LOG OUT
                   </button>
                 )}
               </div>
             </div>
 
-            {/* Footer */}
-            <div className="absolute bottom-6 left-6 right-6 border-t border-kora pt-4 sm:left-10 sm:right-10">
-              <p className="font-editorial text-sm italic text-thread-grey">
-                Dress for the story you{`'`}re about to tell.
+            {/* DRAWER FOOTER */}
+            <div className="mt-8 border-t border-thread-grey/20 pt-5">
+              <p className="max-w-xs font-editorial text-sm italic leading-relaxed text-thread-grey">
+                Dress for the story you&apos;re about to tell.
+              </p>
+
+              <p className="mt-4 font-utility text-[7px] tracking-[0.24em] text-thread-grey/60">
+                SOZAN / NAZM
               </p>
             </div>
           </aside>
