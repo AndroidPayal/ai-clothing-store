@@ -8,7 +8,7 @@ export default function HowItWorks() {
     },
     {
       number: "02",
-      title: "Discover new combinations",
+      title: "Discover new looks",
       description:
         "Explore unexpected pairings and fresh ways to bring familiar pieces together.",
     },
@@ -62,9 +62,9 @@ export default function HowItWorks() {
             {steps.map((step, index) => (
               <div
                 key={step.number}
-                className={`group relative min-h-[320px] px-0 py-12 sm:min-h-[360px] sm:py-16 lg:px-10 ${
+                className={`group relative min-h-[420px] px-0 py-12 sm:min-h-[440px] sm:py-16 lg:min-h-[460px] lg:px-10 ${
                   index !== 0
-                    ? "border-t border-thread-grey/30 lg:border-t-0 lg:border-l"
+                    ? "border-t border-thread-grey/20 lg:border-t-0 lg:border-l"
                     : ""
                 }`}
               >

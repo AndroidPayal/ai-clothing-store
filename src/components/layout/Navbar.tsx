@@ -30,10 +30,7 @@ const menuItems = [
   { label: "MEN", href: "/products?category=men" },
 ];
 
-export default function Navbar({
-  cartCount,
-  wishlistCount,
-}: NavbarProps) {
+export default function Navbar({ cartCount, wishlistCount }: NavbarProps) {
   const { status } = useSession();
   const isLoggedIn = status === "authenticated";
 
@@ -55,10 +52,7 @@ export default function Navbar({
   const isActive = (href: string) => {
     const cleanHref = href.split("?")[0];
 
-    return (
-      pathname === cleanHref ||
-      pathname.startsWith(`${cleanHref}/`)
-    );
+    return pathname === cleanHref || pathname.startsWith(`${cleanHref}/`);
   };
 
   useEffect(() => {
@@ -77,10 +71,8 @@ export default function Navbar({
 
       <header className="sticky top-0 z-50 border-b border-thread-grey/20 bg-muslin/95 backdrop-blur-md">
         <nav className="mx-auto flex h-[72px] max-w-[1440px] items-center justify-between px-5 sm:px-8 lg:px-12">
-
           {/* LEFT */}
           <div className="flex items-center gap-6 lg:gap-9">
-
             {/* MENU */}
             <button
               type="button"
@@ -136,17 +128,13 @@ export default function Navbar({
           ================================================= */}
 
           <div className="flex items-center gap-4 sm:gap-5">
-
             {/* SEARCH */}
             <Link
               href="/products"
               aria-label="Search"
               className="hidden text-thread-black transition-colors hover:text-awadh-ink sm:block"
             >
-              <Search
-                size={18}
-                strokeWidth={1.35}
-              />
+              <Search size={18} strokeWidth={1.35} />
             </Link>
 
             {/* WISHLIST */}
@@ -159,10 +147,7 @@ export default function Navbar({
                   : "text-thread-black hover:text-awadh-ink"
               }`}
             >
-              <Heart
-                size={19}
-                strokeWidth={1.35}
-              />
+              <Heart size={19} strokeWidth={1.35} />
 
               {wishlistCount > 0 && (
                 <span className="absolute -right-3 -top-2 min-w-[12px] text-center font-utility text-[8px] text-awadh-ink">
@@ -181,10 +166,7 @@ export default function Navbar({
                   : "text-thread-black hover:text-awadh-ink"
               }`}
             >
-              <ShoppingBag
-                size={19}
-                strokeWidth={1.35}
-              />
+              <ShoppingBag size={19} strokeWidth={1.35} />
 
               {cartCount > 0 && (
                 <span className="absolute -right-3 -top-2 min-w-[12px] text-center font-utility text-[8px] text-awadh-ink">
@@ -196,7 +178,6 @@ export default function Navbar({
             {/* ACCOUNT */}
             {isLoggedIn ? (
               <div className="flex items-center gap-4 border-l border-thread-grey/25 pl-4 sm:pl-5">
-
                 <Link
                   href="/orders"
                   aria-label="My orders"
@@ -206,10 +187,7 @@ export default function Navbar({
                       : "text-thread-black hover:text-awadh-ink"
                   }`}
                 >
-                  <Package
-                    size={17}
-                    strokeWidth={1.35}
-                  />
+                  <Package size={17} strokeWidth={1.35} />
                 </Link>
 
                 <Link
@@ -217,10 +195,7 @@ export default function Navbar({
                   aria-label="Account"
                   className="hidden text-thread-black transition-colors hover:text-awadh-ink sm:block"
                 >
-                  <User
-                    size={18}
-                    strokeWidth={1.35}
-                  />
+                  <User size={18} strokeWidth={1.35} />
                 </Link>
 
                 <button
@@ -229,10 +204,7 @@ export default function Navbar({
                   aria-label="Logout"
                   className="hidden text-thread-grey transition-colors hover:text-thread-black md:block"
                 >
-                  <LogOut
-                    size={16}
-                    strokeWidth={1.35}
-                  />
+                  <LogOut size={16} strokeWidth={1.35} />
                 </button>
               </div>
             ) : (
@@ -240,15 +212,9 @@ export default function Navbar({
                 href="/login"
                 className="flex items-center border-l border-thread-grey/25 pl-4 font-utility text-[9px] tracking-[0.18em] text-thread-black transition-colors hover:text-awadh-ink sm:pl-5"
               >
-                <span className="hidden sm:inline">
-                  ACCOUNT
-                </span>
+                <span className="hidden sm:inline">ACCOUNT</span>
 
-                <LogIn
-                  size={18}
-                  strokeWidth={1.35}
-                  className="sm:hidden"
-                />
+                <LogIn size={18} strokeWidth={1.35} className="sm:hidden" />
               </Link>
             )}
           </div>
@@ -261,7 +227,6 @@ export default function Navbar({
 
       {menuOpen && (
         <div className="fixed inset-0 z-[100]">
-
           {/* BACKDROP */}
           <button
             type="button"
@@ -272,14 +237,9 @@ export default function Navbar({
 
           {/* DRAWER */}
           <aside className="relative flex h-full w-full max-w-[460px] flex-col bg-muslin px-6 py-6 shadow-2xl sm:px-10">
-
             {/* DRAWER HEADER */}
             <div className="flex items-start justify-between border-b border-thread-grey/25 pb-6">
-
-              <Link
-                href="/"
-                onClick={() => setMenuOpen(false)}
-              >
+              <Link href="/" onClick={() => setMenuOpen(false)}>
                 <p className="font-brand text-lg tracking-[0.2em] text-thread-black">
                   SOZAN
                 </p>
@@ -295,16 +255,12 @@ export default function Navbar({
                 aria-label="Close menu"
                 className="flex h-10 w-10 items-center justify-center border border-thread-grey/30 text-thread-black transition-all duration-300 hover:bg-thread-black hover:text-muslin"
               >
-                <X
-                  size={17}
-                  strokeWidth={1.35}
-                />
+                <X size={17} strokeWidth={1.35} />
               </button>
             </div>
 
             {/* NAVIGATION */}
             <div className="flex-1 py-10">
-
               <div className="mb-7 flex items-center gap-3">
                 <span className="h-px w-8 bg-awadh-ink" />
 
@@ -322,7 +278,6 @@ export default function Navbar({
                     className="group flex items-center justify-between border-b border-thread-grey/20 py-5"
                   >
                     <div className="flex items-center gap-6">
-
                       <span className="font-utility text-[8px] tracking-[0.18em] text-thread-grey">
                         0{index + 1}
                       </span>
@@ -344,13 +299,11 @@ export default function Navbar({
 
             {/* ACCOUNT */}
             <div className="border-t border-thread-grey/20 pt-7">
-
               <p className="mb-5 font-utility text-[8px] tracking-[0.24em] text-thread-grey">
                 YOUR SPACE
               </p>
 
               <div className="flex flex-wrap gap-x-7 gap-y-5">
-
                 <Link
                   href="/wishlist"
                   onClick={() => setMenuOpen(false)}
