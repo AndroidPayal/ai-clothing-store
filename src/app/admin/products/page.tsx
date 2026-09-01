@@ -100,7 +100,6 @@ export default function AdminProducts() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          id: Number(formData.id),
           title: formData.title,
           price: Number(formData.price),
           inStock: formData.inStock,
@@ -294,16 +293,6 @@ export default function AdminProducts() {
               </h2>
 
               <div className="grid gap-5 md:grid-cols-2">
-                <input
-                  name="id"
-                  type="number"
-                  placeholder="Product ID"
-                  value={formData.id}
-                  onChange={handleFormChange}
-                  required
-                  className="rounded-lg border p-3 text-gray-900"
-                />
-
                 <input
                   name="title"
                   type="text"

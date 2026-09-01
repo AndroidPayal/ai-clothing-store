@@ -5,10 +5,10 @@ import Link from "next/link";
 
 const collections = [
   {
-    title: "New Arrivals",
-    subtitle: "Fresh styles, just for you",
-    image: "/images/collections/new-arrivals.jpg",
-    href: "/products",
+    title: "Men",
+    subtitle: "Modern essentials",
+    image: "/images/collections/men.jpg",
+    href: "/products?category=men",
   },
   {
     title: "Women",
@@ -17,10 +17,10 @@ const collections = [
     href: "/products?category=women",
   },
   {
-    title: "Men",
-    subtitle: "Modern essentials",
-    image: "/images/collections/men.jpg",
-    href: "/products?category=men",
+    title: "Kids",
+    subtitle: "Little styles, big personality",
+    image: "/images/collections/kids-image.jpg",
+    href: "/products?category=kids",
   },
 ];
 
@@ -30,19 +30,24 @@ export default function CollectionReveal() {
       <div className="mx-auto max-w-[1440px]">
         {/* Section label */}
         <div className="flex items-center justify-between border-b border-kora pb-5">
-          {/* <span className="font-utility text-[9px] tracking-[0.22em] text-awadh-ink">
-            03 — COLLECTIONS
-          </span> */}
+          <div className="flex items-center gap-3">
+            <span className="h-1.5 w-1.5 rounded-full bg-awadh-terracotta" />
 
-          <span className="font-utility text-[9px] tracking-[0.18em] text-thread-grey">
-            FIND YOUR DIRECTION
+            <span className="font-utility text-[9px] tracking-[0.18em] text-thread-grey">
+              FIND YOUR DIRECTION
+            </span>
+          </div>
+
+          <span className="hidden font-utility text-[8px] tracking-[0.18em] text-thread-grey sm:block">
+            04 / COLLECTION
           </span>
         </div>
 
         {/* Heading */}
-        <div className="flex flex-col justify-between gap-8 py-16 md:flex-row md:items-end">
-          <div>
-            <div className="mb-7 flex items-center gap-4">
+        <div className="relative flex flex-col justify-between gap-8 py-16 md:flex-row md:items-end">
+          <div className="relative">
+            {/* Editorial eyebrow */}
+            <div className="relative mb-7 flex items-center gap-4">
               <span className="h-px w-10 bg-awadh-ink" />
 
               <span className="font-utility text-[9px] tracking-[0.22em] text-awadh-ink">
@@ -55,6 +60,12 @@ export default function CollectionReveal() {
               <br />
               feels like you.
             </h2>
+
+            {/* Small terracotta detail */}
+            <div className="mt-8 flex items-center gap-3">
+              <span className="h-px w-14 bg-awadh-terracotta" />
+              <span className="h-1.5 w-1.5 rounded-full bg-awadh-terracotta" />
+            </div>
           </div>
 
           <p className="max-w-md font-editorial text-lg leading-relaxed text-thread-grey sm:text-xl">
@@ -81,7 +92,6 @@ export default function CollectionReveal() {
                   sizes="(max-width: 768px) 100vw, 33vw"
                 />
 
-                {/* Overlay */}
                 <div className="absolute inset-0 bg-thread-black/10 transition-colors duration-500 group-hover:bg-thread-black/30" />
 
                 {/* Number */}
@@ -90,6 +100,9 @@ export default function CollectionReveal() {
                     0{index + 1}
                   </span>
                 </div>
+
+                {/* Terracotta corner */}
+                <div className="absolute bottom-5 right-5 h-8 w-8 border-b border-r border-awadh-terracotta/80 opacity-0 transition-all duration-500 group-hover:h-12 group-hover:w-12 group-hover:opacity-100" />
 
                 {/* Explore */}
                 <div className="absolute bottom-5 left-5 opacity-0 transition-opacity duration-500 group-hover:opacity-100">
@@ -116,13 +129,26 @@ export default function CollectionReveal() {
                     </p>
                   </div>
 
-                  <span className="mb-1 text-xl text-thread-black transition-transform duration-300 group-hover:translate-x-1">
+                  <span className="mb-1 text-xl text-thread-black transition-transform duration-300 group-hover:translate-x-1 group-hover:text-awadh-ink">
                     →
                   </span>
                 </div>
               </div>
             </Link>
           ))}
+        </div>
+
+        {/* Bottom editorial line */}
+        <div className="mt-16 flex items-center justify-between border-t border-kora pt-6">
+          <span className="font-utility text-[8px] tracking-[0.18em] text-thread-grey">
+            MEN / WOMEN / KIDS
+          </span>
+
+          <div className="flex items-center gap-3">
+            <span className="h-px w-12 bg-awadh-terracotta" />
+
+            <span className="h-1.5 w-1.5 rounded-full bg-awadh-terracotta" />
+          </div>
         </div>
       </div>
     </section>

@@ -12,25 +12,28 @@ import { useRouter } from "next/navigation";
 type ProductCollectionProps = {
   initialCategory?: string;
   initialCollection?: string;
+  initialSort?: "default" | "newest";
   variant?: "home" | "shop";
 };
 
 export default function ProductCollection({
   initialCategory = "All",
   initialCollection = "",
+  initialSort = "default",
   variant = "home",
 }: ProductCollectionProps) {
   const { addToCart } = useCart();
   const { addToWishlist } = useWishlist();
   const router = useRouter();
+
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
 
   const [search, setSearch] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState(initialCategory);
-
   const [sortBy, setSortBy] = useState("default");
+
+  const selectedCategory = initialCategory;
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -38,7 +41,19 @@ export default function ProductCollection({
         setIsLoading(true);
         setError("");
 
-        const response = await fetch("/api/products");
+        const query = new URLSearchParams();
+
+        if (initialCategory !== "All") {
+          query.set("category", initialCategory);
+        }
+
+        if (initialSort === "newest") {
+          query.set("sort", "newest");
+        }
+
+        const response = await fetch(
+          `/api/products${query.size > 0 ? `?${query.toString()}` : ""}`,
+        );
 
         const data = await response.json();
 
@@ -59,7 +74,7 @@ export default function ProductCollection({
     };
 
     fetchProducts();
-  }, []);
+  }, [initialCategory, initialSort]);
 
   const searchText = search.trim().toLowerCase();
 
@@ -72,19 +87,18 @@ export default function ProductCollection({
         product.description.toLowerCase().includes(searchText);
 
       const matchesCategory =
-        selectedCategory === "All" || product.category === selectedCategory;
+        selectedCategory.toLowerCase() === "all" ||
+        product.category.toLowerCase() === selectedCategory.toLowerCase();
 
       return matchesSearch && matchesCategory;
     });
   }, [products, searchText, selectedCategory]);
 
-  const categories = useMemo(
-    () => ["All", ...new Set(products.map((product) => product.category))],
-    [products],
-  );
+  const categories = ["All", "women", "men", "kids"];
 
   const sortedProducts = useMemo(() => {
     const result = [...filteredProducts];
+
     if (initialCollection === "new-arrivals") {
       result.sort(
         (a, b) =>
@@ -92,6 +106,7 @@ export default function ProductCollection({
           new Date(a.createdAt || 0).getTime(),
       );
     }
+
     switch (sortBy) {
       case "price-low":
         result.sort((a, b) => a.price - b.price);
@@ -111,12 +126,12 @@ export default function ProductCollection({
     }
 
     return result;
-  }, [filteredProducts, sortBy]);
+  }, [filteredProducts, initialCollection, sortBy]);
 
   return (
     <section
       id="collection"
-      className="bg-muslin px-6 py-24 sm:px-10 sm:py-32 lg:px-16"
+      className="bg-muslin px-6 pt-16 pb-24 sm:px-10 sm:pt-20 sm:pb-32 lg:px-16"
     >
       <div className="mx-auto max-w-[1440px]">
         {/* Heading */}
@@ -124,10 +139,6 @@ export default function ProductCollection({
           {variant === "home" ? (
             <div className="flex flex-col justify-between gap-8 md:flex-row md:items-end">
               <div>
-                {/* <p className="font-utility text-[9px] tracking-[0.22em] text-awadh-ink">
-                  04 — THE PIECES
-                </p> */}
-
                 <h2 className="mt-6 font-display text-5xl leading-[0.95] tracking-tight text-thread-black sm:text-6xl lg:text-7xl">
                   Pieces to begin
                   <br />
@@ -146,6 +157,7 @@ export default function ProductCollection({
                 <p className="font-utility text-[9px] tracking-[0.22em] text-awadh-ink">
                   SOZAN — SHOP
                 </p>
+
                 <h1 className="mt-6 font-display text-5xl leading-[0.95] tracking-tight text-thread-black sm:text-6xl lg:text-7xl">
                   {initialCollection === "new-arrivals" ? (
                     <>
@@ -190,8 +202,6 @@ export default function ProductCollection({
                 key={category}
                 type="button"
                 onClick={() => {
-                  setSelectedCategory(category);
-
                   if (category === "All") {
                     router.push("/products");
                   } else {
@@ -201,7 +211,7 @@ export default function ProductCollection({
                   }
                 }}
                 className={`
-                    shrink-0
+                  shrink-0
                   font-utility
                   text-[9px]
                   tracking-[0.18em]
@@ -248,16 +258,18 @@ export default function ProductCollection({
         </div>
 
         {/* Count */}
-        <div className="flex items-center justify-between py-6">
-          <p className="font-utility text-[9px] tracking-[0.18em] text-thread-grey">
-            {sortedProducts.length}{" "}
-            {sortedProducts.length === 1 ? "PIECE" : "PIECES"}
-          </p>
+        {!isLoading && (
+          <div className="flex items-center justify-between py-6">
+            <p className="font-utility text-[9px] tracking-[0.18em] text-thread-grey">
+              {sortedProducts.length}{" "}
+              {sortedProducts.length === 1 ? "PIECE" : "PIECES"}
+            </p>
 
-          <p className="hidden font-utility text-[9px] tracking-[0.18em] text-thread-grey sm:block">
-            SELECTED WITH INTENTION
-          </p>
-        </div>
+            <p className="hidden font-utility text-[9px] tracking-[0.18em] text-thread-grey sm:block">
+              SELECTED WITH INTENTION
+            </p>
+          </div>
+        )}
 
         {/* Loading */}
         {isLoading && (
@@ -298,10 +310,10 @@ export default function ProductCollection({
           ) : (
             <EmptyState
               emoji="🔍"
-              title="No Products Found"
-              description="Try another search keyword."
-              buttonText="Back to Home"
-              href="/"
+              title="No Pieces Found"
+              description="Try another search or explore the complete collection."
+              buttonText="View All Pieces"
+              href="/products"
             />
           ))}
       </div>

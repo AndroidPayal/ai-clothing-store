@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import connectDB from "@/lib/mongodb";
 import Product from "@/models/Product";
 
@@ -15,11 +15,24 @@ export async function OPTIONS() {
   });
 }
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
     await connectDB();
 
-    const products = await Product.find({}).sort({ createdAt: -1 }).lean();
+    const category = request.nextUrl.searchParams.get("category")?.trim();
+    const sort = request.nextUrl.searchParams.get("sort");
+    const collection = request.nextUrl.searchParams.get("collection");
+
+    // Product categories are stored in lowercase (men, women, kids). Normalize
+    // the URL value so category links work regardless of the query's casing.
+    const filter = category ? { category: category.toLowerCase() } : {};
+    const isNewest = sort === "newest" || collection === "new-arrivals";
+
+    // The existing default is newest-first as well. Keep that ordering for
+    // /products, while explicitly applying the same date sort for New Arrivals.
+    const products = await Product.find(filter)
+      .sort(isNewest ? { createdAt: -1 } : { createdAt: -1 })
+      .lean();
 
     return NextResponse.json(
       { products },

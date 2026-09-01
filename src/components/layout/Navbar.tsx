@@ -13,6 +13,7 @@ import {
   LogIn,
   X,
   ArrowUpRight,
+  House,
 } from "lucide-react";
 import { useSession, signOut } from "next-auth/react";
 import { toast } from "sonner";
@@ -28,6 +29,7 @@ const menuItems = [
   { label: "NEW ARRIVALS", href: "/products?collection=new-arrivals" },
   { label: "WOMEN", href: "/products?category=women" },
   { label: "MEN", href: "/products?category=men" },
+  { label: "KIDS", href: "/products?category=kids" },
 ];
 
 export default function Navbar({ cartCount, wishlistCount }: NavbarProps) {
@@ -91,18 +93,6 @@ export default function Navbar({ cartCount, wishlistCount }: NavbarProps) {
                 MENU
               </span>
             </button>
-
-            {/* SHOP */}
-            <Link
-              href="/products"
-              className={`hidden font-utility text-[9px] tracking-[0.22em] transition-colors md:block ${
-                isActive("/products")
-                  ? "text-awadh-ink"
-                  : "text-thread-black hover:text-awadh-ink"
-              }`}
-            >
-              SHOP
-            </Link>
           </div>
 
           {/* =================================================
@@ -128,6 +118,18 @@ export default function Navbar({ cartCount, wishlistCount }: NavbarProps) {
           ================================================= */}
 
           <div className="flex items-center gap-4 sm:gap-5">
+            {/* HOME */}
+            <Link
+              href="/"
+              aria-label="Home"
+              className={`transition-colors ${
+                pathname === "/"
+                  ? "text-awadh-ink"
+                  : "text-thread-black hover:text-awadh-ink"
+              }`}
+            >
+              <House size={18} strokeWidth={1.35} />
+            </Link>
             {/* SEARCH */}
             <Link
               href="/products"
@@ -191,7 +193,7 @@ export default function Navbar({ cartCount, wishlistCount }: NavbarProps) {
                 </Link>
 
                 <Link
-                  href="/orders"
+                  href="/profile"
                   aria-label="Account"
                   className="hidden text-thread-black transition-colors hover:text-awadh-ink sm:block"
                 >
@@ -236,7 +238,8 @@ export default function Navbar({ cartCount, wishlistCount }: NavbarProps) {
           />
 
           {/* DRAWER */}
-          <aside className="relative flex h-full w-full max-w-[460px] flex-col bg-muslin px-6 py-6 shadow-2xl sm:px-10">
+          <aside className="relative flex h-full w-full max-w-[460px] flex-col overflow-y-auto bg-muslin px-6 py-6 shadow-2xl sm:px-10">
+            {" "}
             {/* DRAWER HEADER */}
             <div className="flex items-start justify-between border-b border-thread-grey/25 pb-6">
               <Link href="/" onClick={() => setMenuOpen(false)}>
@@ -258,9 +261,8 @@ export default function Navbar({ cartCount, wishlistCount }: NavbarProps) {
                 <X size={17} strokeWidth={1.35} />
               </button>
             </div>
-
             {/* NAVIGATION */}
-            <div className="flex-1 py-10">
+            <div className="py-10">
               <div className="mb-7 flex items-center gap-3">
                 <span className="h-px w-8 bg-awadh-ink" />
 
@@ -296,7 +298,6 @@ export default function Navbar({ cartCount, wishlistCount }: NavbarProps) {
                 ))}
               </nav>
             </div>
-
             {/* ACCOUNT */}
             <div className="border-t border-thread-grey/20 pt-7">
               <p className="mb-5 font-utility text-[8px] tracking-[0.24em] text-thread-grey">
@@ -314,7 +315,7 @@ export default function Navbar({ cartCount, wishlistCount }: NavbarProps) {
                 </Link>
 
                 <Link
-                  href={isLoggedIn ? "/orders" : "/login"}
+                  href={isLoggedIn ? "/profile" : "/login"}
                   onClick={() => setMenuOpen(false)}
                   className="flex items-center gap-2 font-utility text-[9px] tracking-[0.18em] text-thread-black transition-colors hover:text-awadh-ink"
                 >
@@ -334,7 +335,6 @@ export default function Navbar({ cartCount, wishlistCount }: NavbarProps) {
                 )}
               </div>
             </div>
-
             {/* DRAWER FOOTER */}
             <div className="mt-8 border-t border-thread-grey/20 pt-5">
               <p className="max-w-xs font-editorial text-sm italic leading-relaxed text-thread-grey">

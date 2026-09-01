@@ -110,7 +110,6 @@ export default function ProductCard({
 
       {/* Product information */}
       <div className="flex flex-1 flex-col border-x border-b border-kora p-5 sm:p-6">
-        {" "}
         <Link href={`/products/${product.id}`} className="block">
           <p className="font-utility text-[9px] tracking-[0.18em] text-thread-grey">
             {product.category.toUpperCase()}
