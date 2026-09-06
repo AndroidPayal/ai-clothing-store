@@ -44,19 +44,10 @@ export async function POST(request: Request) {
 
     const body = await request.json();
 
-    const {
-      id,
-      title,
-      price,
-      inStock,
-      thumbnail,
-      image,
-      category,
-      description,
-    } = body;
+    const { title, price, inStock, thumbnail, image, category, description } =
+      body;
 
     if (
-      id === undefined ||
       !title ||
       price === undefined ||
       !thumbnail ||
@@ -72,23 +63,22 @@ export async function POST(request: Request) {
 
     await connectDB();
 
-    const existingProduct = await Product.findOne({ id });
+    // Generate the next numeric product ID automatically
+    const lastProduct = await Product.findOne({})
+      .sort({ id: -1 })
+      .select("id")
+      .lean();
 
-    if (existingProduct) {
-      return NextResponse.json(
-        { message: "Product ID already exists" },
-        { status: 400 },
-      );
-    }
+    const nextId = lastProduct?.id ? Number(lastProduct.id) + 1 : 1;
 
     const product = await Product.create({
-      id,
+      id: nextId,
       title,
       price,
       inStock,
       thumbnail,
       image,
-      category,
+      category: category.toLowerCase(),
       description,
     });
 

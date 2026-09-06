@@ -5,17 +5,14 @@ import User from "@/models/User";
 
 export async function GET() {
   try {
-    // Check logged-in user
     const session = await auth();
 
     if (!session?.user?.email) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
-    // Connect to MongoDB
     await connectDB();
 
-    // Get latest user data
     const user = await User.findOne(
       { email: session.user.email },
       {
@@ -48,18 +45,15 @@ export async function GET() {
 
 export async function PATCH(request: Request) {
   try {
-    // Check logged-in user
     const session = await auth();
-
-    console.log("PROFILE SESSION:", session);
 
     if (!session?.user?.email) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
-    // Get submitted data
     const body = await request.json();
-    const name = body.name?.trim();
+
+    const name = typeof body?.name === "string" ? body.name.trim() : "";
 
     if (!name) {
       return NextResponse.json(
@@ -68,10 +62,22 @@ export async function PATCH(request: Request) {
       );
     }
 
-    // Connect to MongoDB
+    if (name.length < 2) {
+      return NextResponse.json(
+        { message: "Name must be at least 2 characters" },
+        { status: 400 },
+      );
+    }
+
+    if (name.length > 100) {
+      return NextResponse.json(
+        { message: "Name is too long" },
+        { status: 400 },
+      );
+    }
+
     await connectDB();
 
-    // Update user's fullName
     const user = await User.findOneAndUpdate(
       { email: session.user.email },
       { fullName: name },

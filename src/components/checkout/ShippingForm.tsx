@@ -91,7 +91,8 @@ export default function ShippingForm() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          amount: cartTotal,
+          items: cart,
+          customer: formData,
         }),
       });
       console.log("PAYMENT RESPONSE:", paymentResponse);
@@ -150,9 +151,6 @@ export default function ShippingForm() {
                 razorpayOrderId: response.razorpay_order_id,
                 razorpayPaymentId: response.razorpay_payment_id,
                 razorpaySignature: response.razorpay_signature,
-                items: cart,
-                total: cartTotal,
-                customer: formData,
               }),
             });
 

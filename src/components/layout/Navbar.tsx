@@ -33,8 +33,9 @@ const menuItems = [
 ];
 
 export default function Navbar({ cartCount, wishlistCount }: NavbarProps) {
-  const { status } = useSession();
+  const { data: session, status } = useSession();
   const isLoggedIn = status === "authenticated";
+  const isAdmin = session?.user?.role === "admin";
 
   const router = useRouter();
   const pathname = usePathname();
@@ -180,6 +181,16 @@ export default function Navbar({ cartCount, wishlistCount }: NavbarProps) {
             {/* ACCOUNT */}
             {isLoggedIn ? (
               <div className="flex items-center gap-4 border-l border-thread-grey/25 pl-4 sm:pl-5">
+                {isAdmin && (
+                  <Link
+                    href="/admin"
+                    aria-label="Admin Dashboard"
+                    className="hidden font-utility text-[9px] tracking-[0.18em] text-awadh-ink transition-colors hover:text-thread-black md:block"
+                  >
+                    ADMIN
+                  </Link>
+                )}
+
                 <Link
                   href="/orders"
                   aria-label="My orders"
@@ -305,6 +316,17 @@ export default function Navbar({ cartCount, wishlistCount }: NavbarProps) {
               </p>
 
               <div className="flex flex-wrap gap-x-7 gap-y-5">
+                {isAdmin && (
+                  <Link
+                    href="/admin"
+                    onClick={() => setMenuOpen(false)}
+                    className="flex items-center gap-2 font-utility text-[9px] tracking-[0.18em] text-awadh-ink transition-colors hover:text-thread-black"
+                  >
+                    <ArrowUpRight size={15} strokeWidth={1.35} />
+                    ADMIN DASHBOARD
+                  </Link>
+                )}
+
                 <Link
                   href="/wishlist"
                   onClick={() => setMenuOpen(false)}

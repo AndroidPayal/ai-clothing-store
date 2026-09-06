@@ -4,8 +4,10 @@ import connectDB from "@/lib/mongodb";
 import Cart from "@/models/Cart";
 import { getAuthenticatedUser } from "@/lib/getAuthenticatedUser";
 
+const corsOrigin = process.env.MOBILE_APP_ORIGIN || "http://localhost:8081";
+
 const corsHeaders = {
-  "Access-Control-Allow-Origin": "http://localhost:8081",
+  "Access-Control-Allow-Origin": corsOrigin,
   "Access-Control-Allow-Methods": "GET, PUT, OPTIONS",
   "Access-Control-Allow-Headers": "Content-Type, Authorization",
 };

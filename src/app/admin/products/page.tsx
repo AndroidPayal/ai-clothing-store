@@ -15,7 +15,6 @@ type AdminProduct = {
 };
 
 type ProductFormData = {
-  id: string;
   title: string;
   price: string;
   inStock: boolean;
@@ -32,7 +31,6 @@ export default function AdminProducts() {
   const [showForm, setShowForm] = useState(false);
 
   const [formData, setFormData] = useState<ProductFormData>({
-    id: "",
     title: "",
     price: "",
     inStock: true,
@@ -77,7 +75,9 @@ export default function AdminProducts() {
   }, []);
 
   const handleFormChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >,
   ) => {
     const { name, value } = e.target;
 
@@ -119,7 +119,6 @@ export default function AdminProducts() {
       setProducts((currentProducts) => [data.product, ...currentProducts]);
 
       setFormData({
-        id: "",
         title: "",
         price: "",
         inStock: true,
@@ -185,7 +184,6 @@ export default function AdminProducts() {
       setShowForm(false);
 
       setFormData({
-        id: "",
         title: "",
         price: "",
         inStock: true,
@@ -313,15 +311,20 @@ export default function AdminProducts() {
                   className="rounded-lg border p-3 text-gray-900"
                 />
 
-                <input
+                <select
                   name="category"
-                  type="text"
-                  placeholder="Category"
                   value={formData.category}
                   onChange={handleFormChange}
                   required
                   className="rounded-lg border p-3 text-gray-900"
-                />
+                >
+                  <option value="" disabled>
+                    Select Category
+                  </option>
+                  <option value="men">Men</option>
+                  <option value="women">Women</option>
+                  <option value="kids">Kids</option>
+                </select>
 
                 <input
                   name="thumbnail"
@@ -390,7 +393,6 @@ export default function AdminProducts() {
                     setEditingProduct(null);
 
                     setFormData({
-                      id: "",
                       title: "",
                       price: "",
                       inStock: true,
@@ -486,7 +488,6 @@ export default function AdminProducts() {
                             setEditingProduct(product);
 
                             setFormData({
-                              id: String(product.id),
                               title: product.title,
                               price: String(product.price),
                               inStock: product.inStock,

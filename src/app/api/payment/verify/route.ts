@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import crypto from "crypto";
-import { auth } from "@/auth";
+
 import connectDB from "@/lib/mongodb";
 import Order from "@/models/Order";
 import { getAuthenticatedUser } from "@/lib/getAuthenticatedUser";
@@ -17,50 +17,26 @@ export async function OPTIONS() {
     headers: corsHeaders,
   });
 }
+
 export async function POST(request: Request) {
   try {
     const user = await getAuthenticatedUser(request);
 
     if (!user?.id) {
       return NextResponse.json(
-        {
-          message: "Unauthorized",
-        },
-        {
-          status: 401,
-          headers: corsHeaders,
-        },
+        { message: "Unauthorized" },
+        { status: 401, headers: corsHeaders },
       );
     }
 
     const body = await request.json();
 
-    const {
-      razorpayOrderId,
-      razorpayPaymentId,
-      razorpaySignature,
-      items,
-      total,
-      customer,
-    } = body;
+    const { razorpayOrderId, razorpayPaymentId, razorpaySignature } = body;
 
-    if (
-      !razorpayOrderId ||
-      !razorpayPaymentId ||
-      !razorpaySignature ||
-      !items ||
-      items.length === 0 ||
-      !total ||
-      !customer
-    ) {
+    if (!razorpayOrderId || !razorpayPaymentId || !razorpaySignature) {
       return NextResponse.json(
-        {
-          message: "Invalid payment verification data",
-        },
-        {
-          status: 400,
-          headers: corsHeaders,
-        },
+        { message: "Invalid payment verification data" },
+        { status: 400, headers: corsHeaders },
       );
     }
 
@@ -69,46 +45,59 @@ export async function POST(request: Request) {
       .update(`${razorpayOrderId}|${razorpayPaymentId}`)
       .digest("hex");
 
-    if (generatedSignature !== razorpaySignature) {
+    const signaturesMatch = crypto.timingSafeEqual(
+      Buffer.from(generatedSignature, "utf8"),
+      Buffer.from(razorpaySignature, "utf8"),
+    );
+
+    if (!signaturesMatch) {
       return NextResponse.json(
-        {
-          message: "Payment verification failed",
-        },
-        {
-          status: 400,
-          headers: corsHeaders,
-        },
+        { message: "Payment verification failed" },
+        { status: 400, headers: corsHeaders },
       );
     }
 
     await connectDB();
 
-    const newOrder = await Order.create({
+    const order = await Order.findOne({
+      "payment.razorpayOrderId": razorpayOrderId,
       userId: user.id,
-
-      items,
-
-      total,
-
-      customer,
-
-      payment: {
-        razorpayOrderId,
-        razorpayPaymentId,
-        razorpaySignature,
-      },
-
-      status: "Confirmed",
-      headers: corsHeaders,
     });
+
+    if (!order) {
+      return NextResponse.json(
+        { message: "Order not found" },
+        { status: 404, headers: corsHeaders },
+      );
+    }
+
+    // Prevent duplicate verification/order processing.
+    if (order.payment.razorpayPaymentId) {
+      return NextResponse.json(
+        {
+          message: "Payment already verified",
+          order,
+        },
+        {
+          status: 200,
+          headers: corsHeaders,
+        },
+      );
+    }
+
+    order.payment.razorpayPaymentId = razorpayPaymentId;
+    order.payment.razorpaySignature = razorpaySignature;
+    order.status = "Confirmed";
+
+    await order.save();
 
     return NextResponse.json(
       {
-        message: "Payment verified and order created successfully",
-        order: newOrder,
+        message: "Payment verified and order confirmed successfully",
+        order,
       },
       {
-        status: 201,
+        status: 200,
         headers: corsHeaders,
       },
     );

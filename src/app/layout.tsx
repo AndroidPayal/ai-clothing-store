@@ -4,7 +4,6 @@ import "./globals.css";
 import { CartProvider } from "@/context/CartContext";
 import { WishlistProvider } from "@/context/WishlistContext";
 import { Toaster } from "sonner";
-import Footer from "@/components/layout/Footer";
 import Providers from "./providers";
 import SiteShell from "@/components/layout/SiteShell";
 const fraunces = Fraunces({
@@ -50,10 +49,7 @@ export default function RootLayout({
           <Providers>
             <CartProvider>
               <WishlistProvider>
-                  <SiteShell>
-                    {children}
-                  </SiteShell>
-                <Footer />
+                <SiteShell>{children}</SiteShell>
               </WishlistProvider>
             </CartProvider>
           </Providers>

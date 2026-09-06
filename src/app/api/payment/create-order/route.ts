@@ -1,11 +1,16 @@
 import { NextResponse } from "next/server";
 import Razorpay from "razorpay";
+
+import connectDB from "@/lib/mongodb";
+import Order from "@/models/Order";
 import { getAuthenticatedUser } from "@/lib/getAuthenticatedUser";
+import { buildTrustedOrderData, validateCustomer } from "@/lib/checkout";
 
 const razorpay = new Razorpay({
   key_id: process.env.RAZORPAY_KEY_ID!,
   key_secret: process.env.RAZORPAY_KEY_SECRET!,
 });
+
 const corsHeaders = {
   "Access-Control-Allow-Origin": "http://localhost:8081",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
@@ -18,49 +23,52 @@ export async function OPTIONS() {
     headers: corsHeaders,
   });
 }
+
 export async function POST(request: Request) {
   try {
     const user = await getAuthenticatedUser(request);
 
     if (!user?.id) {
       return NextResponse.json(
-        {
-          message: "Unauthorized",
-        },
-        {
-          status: 401,
-          headers: corsHeaders,
-        },
+        { message: "Unauthorized" },
+        { status: 401, headers: corsHeaders },
       );
     }
 
     const body = await request.json();
 
-    const { amount } = body;
+    const trustedCustomer = validateCustomer(body.customer);
 
-    if (!amount || amount <= 0) {
-      return NextResponse.json(
-        {
-          message: "Invalid payment amount",
-        },
-        {
-          status: 400,
-          headers: corsHeaders,
-        },
-      );
-    }
+    await connectDB();
 
-    const options = {
-      amount: Math.round(amount * 100),
+    // NEVER trust price/total/product details from the browser.
+    const { items, total } = await buildTrustedOrderData(body.items);
+
+    // Create Razorpay order using SERVER-CALCULATED total.
+    const razorpayOrder = await razorpay.orders.create({
+      amount: Math.round(total * 100),
       currency: "INR",
-      receipt: `receipt_${Date.now()}`,
-    };
+      receipt: `receipt_${Date.now()}_${user.id}`,
+    });
 
-    const order = await razorpay.orders.create(options);
+    // Save a pending order before payment.
+    const pendingOrder = await Order.create({
+      userId: user.id,
+      items,
+      total,
+      customer: trustedCustomer,
+      payment: {
+        razorpayOrderId: razorpayOrder.id,
+        razorpayPaymentId: "",
+        razorpaySignature: "",
+      },
+      status: "Pending",
+    });
 
     return NextResponse.json(
       {
-        order,
+        order: razorpayOrder,
+        internalOrderId: pendingOrder._id.toString(),
       },
       {
         status: 200,

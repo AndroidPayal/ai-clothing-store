@@ -7,6 +7,7 @@ const razorpay = new Razorpay({
   key_id: process.env.RAZORPAY_KEY_ID!,
   key_secret: process.env.RAZORPAY_KEY_SECRET!,
 });
+
 const corsHeaders = {
   "Access-Control-Allow-Origin": "http://localhost:8081",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
@@ -22,14 +23,9 @@ export async function OPTIONS() {
 
 export async function POST(request: Request) {
   try {
-    // Supports both:
-    // 1. NextAuth session (web)
-    // 2. Mobile JWT Bearer token (mobile app)
     const user = await getAuthenticatedUser(request);
 
-    console.log("PAYMENT CREATE ORDER USER:", user);
-
-    if (!user) {
+    if (!user?.id) {
       return NextResponse.json(
         {
           message: "Unauthorized",
@@ -65,7 +61,7 @@ export async function POST(request: Request) {
 
     const order = await razorpay.orders.create(options);
 
-    console.log("RAZORPAY ORDER CREATED:", order.id);
+    console.log("MOBILE RAZORPAY ORDER CREATED:", order.id);
 
     return NextResponse.json(
       {
@@ -77,7 +73,7 @@ export async function POST(request: Request) {
       },
     );
   } catch (error) {
-    console.error("CREATE RAZORPAY ORDER ERROR:", error);
+    console.error("MOBILE CREATE RAZORPAY ORDER ERROR:", error);
 
     return NextResponse.json(
       {

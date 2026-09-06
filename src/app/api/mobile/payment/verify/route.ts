@@ -22,7 +22,7 @@ export async function POST(request: Request) {
   try {
     const user = await getAuthenticatedUser(request);
 
-    if (!user) {
+    if (!user?.id) {
       return NextResponse.json(
         {
           message: "Unauthorized",
@@ -101,6 +101,8 @@ export async function POST(request: Request) {
 
       status: "Confirmed",
     });
+
+    console.log("MOBILE PAYMENT VERIFIED - ORDER CREATED:", newOrder._id);
 
     return NextResponse.json(
       {

@@ -4,8 +4,10 @@ import { jwtVerify } from "jose";
 import connectDB from "@/lib/mongodb";
 import User from "@/models/User";
 
+const corsOrigin = process.env.MOBILE_APP_ORIGIN || "http://localhost:8081";
+
 const corsHeaders = {
-  "Access-Control-Allow-Origin": "http://localhost:8081",
+  "Access-Control-Allow-Origin": corsOrigin,
   "Access-Control-Allow-Methods": "GET, OPTIONS",
   "Access-Control-Allow-Headers": "Content-Type, Authorization",
 };
