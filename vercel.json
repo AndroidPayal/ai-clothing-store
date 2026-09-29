@@ -1,0 +1,12 @@
+{
+  "crons": [
+    {
+      "path": "/api/inventory/cleanup",
+      "schedule": "*/5 * * * *"
+    },
+    {
+      "path": "/api/payment/reconcile-refunds",
+      "schedule": "*/5 * * * *"
+    }
+  ]
+}

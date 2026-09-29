@@ -3,8 +3,10 @@ import { NextResponse } from "next/server";
 import { authenticateUser } from "@/lib/authenticateUser";
 import { createMobileToken } from "@/lib/mobileToken";
 
+const corsOrigin = process.env.MOBILE_APP_ORIGIN || "http://localhost:8081";
+
 const corsHeaders = {
-  "Access-Control-Allow-Origin": "http://localhost:8081",
+  "Access-Control-Allow-Origin": corsOrigin,
   "Access-Control-Allow-Methods": "POST, OPTIONS",
   "Access-Control-Allow-Headers": "Content-Type",
 };

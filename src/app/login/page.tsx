@@ -149,7 +149,7 @@ function LoginForm() {
 
           <div className="mt-8 border-t border-kora pt-6 text-center">
             <p className="font-editorial text-sm text-thread-grey">
-              Don't have an account?{" "}
+              Don&apos;t have an account?{" "}
               <Link
                 href="/signup"
                 className="font-utility text-[9px] tracking-[0.14em] text-thread-black transition-colors hover:text-awadh-ink"

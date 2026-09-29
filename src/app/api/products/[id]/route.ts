@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+
 import connectDB from "@/lib/mongodb";
 import Product from "@/models/Product";
 
@@ -16,6 +17,13 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "Content-Type, Authorization",
 };
 
+function jsonResponse(data: unknown, status = 200) {
+  return NextResponse.json(data, {
+    status,
+    headers: corsHeaders,
+  });
+}
+
 export async function OPTIONS() {
   return new NextResponse(null, {
     status: 204,
@@ -23,19 +31,18 @@ export async function OPTIONS() {
   });
 }
 
-export async function GET(request: Request, { params }: RouteContext) {
+export async function GET(_request: Request, { params }: RouteContext) {
   try {
     const { id } = await params;
 
     const productId = Number(id);
 
     if (!Number.isInteger(productId) || productId <= 0) {
-      return NextResponse.json(
-        { message: "Invalid product ID" },
+      return jsonResponse(
         {
-          status: 400,
-          headers: corsHeaders,
+          message: "Invalid product ID",
         },
+        400,
       );
     }
 
@@ -43,34 +50,32 @@ export async function GET(request: Request, { params }: RouteContext) {
 
     const product = await Product.findOne({
       id: productId,
-    }).lean();
+    })
+      .select(
+        "id title price inStock stockQuantity thumbnail image category description createdAt updatedAt",
+      )
+      .lean();
 
     if (!product) {
-      return NextResponse.json(
-        { message: "Product not found" },
+      return jsonResponse(
         {
-          status: 404,
-          headers: corsHeaders,
+          message: "Product not found",
         },
+        404,
       );
     }
 
-    return NextResponse.json(
-      { product },
-      {
-        status: 200,
-        headers: corsHeaders,
-      },
-    );
+    return jsonResponse({
+      product,
+    });
   } catch (error) {
-    console.error("Product GET error:", error);
+    console.error("PRODUCT GET ERROR:", error);
 
-    return NextResponse.json(
-      { message: "Failed to fetch product" },
+    return jsonResponse(
       {
-        status: 500,
-        headers: corsHeaders,
+        message: "Failed to fetch product",
       },
+      500,
     );
   }
 }

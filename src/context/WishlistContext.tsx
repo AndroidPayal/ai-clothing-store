@@ -61,8 +61,6 @@ export function WishlistProvider({ children }: { children: ReactNode }) {
               (item) => item.id === guestItem.id,
             );
 
-            // Add only if product
-            // doesn't already exist
             if (!existingItem) {
               mergedWishlist.push(guestItem);
             }
@@ -71,22 +69,31 @@ export function WishlistProvider({ children }: { children: ReactNode }) {
           // Update React state
           setWishlist(mergedWishlist);
 
-          // Save merged wishlist
-          // to MongoDB
+          // Save merged wishlist to MongoDB
           if (guestWishlist.length > 0) {
-            await fetch("/api/wishlist", {
+            const mergeResponse = await fetch("/api/wishlist", {
               method: "PUT",
               headers: {
                 "Content-Type": "application/json",
               },
               body: JSON.stringify({
-                items: mergedWishlist,
+                items: mergedWishlist.map((product) => ({
+                  productId: product.id,
+                })),
               }),
             });
 
-            // Guest wishlist is now
-            // safely stored in MongoDB
-            localStorage.removeItem("wishlist");
+            // Remove guest wishlist ONLY if MongoDB save succeeded
+            if (mergeResponse.ok) {
+              localStorage.removeItem("wishlist");
+            } else {
+              const errorData = await mergeResponse.json().catch(() => null);
+
+              console.error(
+                "Wishlist merge failed:",
+                errorData?.message || "Failed to save wishlist",
+              );
+            }
           }
 
           return;
@@ -114,7 +121,6 @@ export function WishlistProvider({ children }: { children: ReactNode }) {
       localStorage.setItem("wishlist", JSON.stringify(wishlist));
     }
   }, [wishlist, status, isWishlistLoading]);
-
   const saveWishlistToDatabase = async (updatedWishlist: Product[]) => {
     try {
       const response = await fetch("/api/wishlist", {
@@ -123,7 +129,9 @@ export function WishlistProvider({ children }: { children: ReactNode }) {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          items: updatedWishlist,
+          items: updatedWishlist.map((product) => ({
+            productId: product.id,
+          })),
         }),
       });
 

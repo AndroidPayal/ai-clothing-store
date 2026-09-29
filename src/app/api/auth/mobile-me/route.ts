@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
-import { jwtVerify } from "jose";
 
 import connectDB from "@/lib/mongodb";
 import User from "@/models/User";
+import { verifyMobileToken } from "@/lib/mobileToken";
 
 const corsOrigin = process.env.MOBILE_APP_ORIGIN || "http://localhost:8081";
 
@@ -12,13 +12,15 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "Content-Type, Authorization",
 };
 
-const secret = process.env.MOBILE_AUTH_SECRET;
-
-if (!secret) {
-  throw new Error("MOBILE_AUTH_SECRET is not defined in environment variables");
+function unauthorized(message = "Unauthorized") {
+  return NextResponse.json(
+    { message },
+    {
+      status: 401,
+      headers: corsHeaders,
+    },
+  );
 }
-
-const secretKey = new TextEncoder().encode(secret);
 
 export async function OPTIONS() {
   return new NextResponse(null, {
@@ -32,49 +34,32 @@ export async function GET(request: Request) {
     const authHeader = request.headers.get("authorization");
 
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      return NextResponse.json(
-        {
-          message: "Unauthorized",
-        },
-        {
-          status: 401,
-          headers: corsHeaders,
-        },
-      );
+      return unauthorized();
     }
 
-    const token = authHeader.substring(7);
+    const token = authHeader.slice(7).trim();
 
-    const { payload } = await jwtVerify(token, secretKey);
+    if (!token) {
+      return unauthorized();
+    }
 
-    const userId = payload.sub;
+    const mobileUser = await verifyMobileToken(token);
 
-    if (!userId) {
-      return NextResponse.json(
-        {
-          message: "Invalid token",
-        },
-        {
-          status: 401,
-          headers: corsHeaders,
-        },
-      );
+    if (!mobileUser) {
+      return unauthorized("Invalid or expired token");
     }
 
     await connectDB();
 
-    const user = await User.findById(userId).select("_id fullName email role");
+    // Always read the current user and role from MongoDB.
+    // This prevents an old JWT from retaining a role after the
+    // user's account/role has changed.
+    const user = await User.findById(mobileUser.id).select(
+      "_id fullName email role",
+    );
 
     if (!user) {
-      return NextResponse.json(
-        {
-          message: "User not found",
-        },
-        {
-          status: 404,
-          headers: corsHeaders,
-        },
-      );
+      return unauthorized("Invalid or expired token");
     }
 
     return NextResponse.json(
@@ -94,14 +79,6 @@ export async function GET(request: Request) {
   } catch (error) {
     console.error("MOBILE ME ERROR:", error);
 
-    return NextResponse.json(
-      {
-        message: "Invalid or expired token",
-      },
-      {
-        status: 401,
-        headers: corsHeaders,
-      },
-    );
+    return unauthorized("Invalid or expired token");
   }
 }

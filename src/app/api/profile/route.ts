@@ -1,109 +1,133 @@
 import { NextResponse } from "next/server";
-import { auth } from "@/auth";
+
 import connectDB from "@/lib/mongodb";
 import User from "@/models/User";
+import { getAuthenticatedUser } from "@/lib/getAuthenticatedUser";
 
-export async function GET() {
+const corsOrigin = process.env.MOBILE_APP_ORIGIN || "http://localhost:8081";
+
+const corsHeaders = {
+  "Access-Control-Allow-Origin": corsOrigin,
+  "Access-Control-Allow-Methods": "GET, PATCH, OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type, Authorization",
+};
+
+function jsonResponse(data: unknown, status = 200) {
+  return NextResponse.json(data, {
+    status,
+    headers: corsHeaders,
+  });
+}
+
+export async function OPTIONS() {
+  return new NextResponse(null, {
+    status: 204,
+    headers: corsHeaders,
+  });
+}
+
+export async function GET(request: Request) {
   try {
-    const session = await auth();
+    const user = await getAuthenticatedUser(request);
 
-    if (!session?.user?.email) {
-      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+    if (!user?.id) {
+      return jsonResponse({ message: "Unauthorized" }, 401);
     }
 
     await connectDB();
 
-    const user = await User.findOne(
-      { email: session.user.email },
-      {
-        fullName: 1,
-        email: 1,
-        role: 1,
-      },
-    ).lean();
+    const profile = await User.findById(user.id, {
+      fullName: 1,
+      email: 1,
+      role: 1,
+    }).lean();
 
-    if (!user) {
-      return NextResponse.json({ message: "User not found" }, { status: 404 });
+    if (!profile) {
+      return jsonResponse({ message: "User not found" }, 404);
     }
 
-    return NextResponse.json({
+    return jsonResponse({
       user: {
-        fullName: user.fullName,
-        email: user.email,
-        role: user.role,
+        fullName: profile.fullName,
+        email: profile.email,
+        role: profile.role,
       },
     });
   } catch (error) {
-    console.error("Profile fetch error:", error);
+    console.error("PROFILE FETCH ERROR:", error);
 
-    return NextResponse.json(
-      { message: "Failed to fetch profile" },
-      { status: 500 },
-    );
+    return jsonResponse({ message: "Failed to fetch profile" }, 500);
   }
 }
 
 export async function PATCH(request: Request) {
   try {
-    const session = await auth();
+    const user = await getAuthenticatedUser(request);
 
-    if (!session?.user?.email) {
-      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+    if (!user?.id) {
+      return jsonResponse({ message: "Unauthorized" }, 401);
     }
 
-    const body = await request.json();
+    let body: unknown;
 
-    const name = typeof body?.name === "string" ? body.name.trim() : "";
+    try {
+      body = await request.json();
+    } catch {
+      return jsonResponse({ message: "Invalid request body" }, 400);
+    }
+
+    if (!body || typeof body !== "object") {
+      return jsonResponse({ message: "Invalid request body" }, 400);
+    }
+
+    const name =
+      "name" in body && typeof body.name === "string" ? body.name.trim() : "";
 
     if (!name) {
-      return NextResponse.json(
-        { message: "Name is required" },
-        { status: 400 },
-      );
+      return jsonResponse({ message: "Name is required" }, 400);
     }
 
     if (name.length < 2) {
-      return NextResponse.json(
+      return jsonResponse(
         { message: "Name must be at least 2 characters" },
-        { status: 400 },
+        400,
       );
     }
 
     if (name.length > 100) {
-      return NextResponse.json(
-        { message: "Name is too long" },
-        { status: 400 },
-      );
+      return jsonResponse({ message: "Name is too long" }, 400);
     }
 
     await connectDB();
 
-    const user = await User.findOneAndUpdate(
-      { email: session.user.email },
-      { fullName: name },
+    const updatedUser = await User.findByIdAndUpdate(
+      user.id,
+      {
+        $set: {
+          fullName: name,
+        },
+      },
       {
         new: true,
         runValidators: true,
       },
-    );
+    ).select("fullName email role");
 
-    if (!user) {
-      return NextResponse.json({ message: "User not found" }, { status: 404 });
+    if (!updatedUser) {
+      return jsonResponse({ message: "User not found" }, 404);
     }
 
-    return NextResponse.json({
+    return jsonResponse({
       message: "Profile updated successfully",
       user: {
-        fullName: user.fullName,
-        email: user.email,
+        fullName: updatedUser.fullName,
+        email: updatedUser.email,
+        role: updatedUser.role,
       },
     });
   } catch (error) {
-    console.error("Profile update error:", error);
+    console.error("PROFILE UPDATE ERROR:", error);
 
-    return NextResponse.json(
-      { message: "Failed to update profile" },
-      { status: 500 },
-    );
+    return jsonResponse({ message: "Failed to update profile" }, 500);
   }
 }

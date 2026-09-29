@@ -1,17 +1,18 @@
 import { NextResponse } from "next/server";
-import { auth } from "@/auth";
+
+import { getAuthenticatedUser } from "@/lib/getAuthenticatedUser";
 import connectDB from "@/lib/mongodb";
 import Order from "@/models/Order";
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
-    const session = await auth();
+    const user = await getAuthenticatedUser(request);
 
-    if (!session?.user) {
+    if (!user?.id) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
-    if (session.user.role !== "admin") {
+    if (user.role !== "admin") {
       return NextResponse.json({ message: "Forbidden" }, { status: 403 });
     }
 

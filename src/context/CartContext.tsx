@@ -1,6 +1,12 @@
 "use client";
 
-import { createContext, useEffect, useState, type ReactNode } from "react";
+import {
+  createContext,
+  useEffect,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
 import { useSession } from "next-auth/react";
 import { type Product, type CartItem } from "@/types/Product";
 
@@ -30,6 +36,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const [cart, setCart] = useState<CartItem[]>([]);
 
   const [isCartLoading, setIsCartLoading] = useState(true);
+  const saveQueue = useRef(Promise.resolve(true));
 
   useEffect(() => {
     if (status === "loading") {
@@ -60,8 +67,27 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
           const databaseCart: CartItem[] = data.cart?.items || [];
 
-          // Start with MongoDB cart
-          const mergedCart = [...databaseCart];
+          // Normalize the database cart so each product appears only once.
+          // If legacy/old data contains duplicates, combine their quantities.
+          const mergedCart = databaseCart.reduce<CartItem[]>(
+            (items, cartItem) => {
+              const existingItem = items.find(
+                (item) => item.product.id === cartItem.product.id,
+              );
+
+              if (existingItem) {
+                existingItem.quantity += cartItem.quantity;
+              } else {
+                items.push({
+                  ...cartItem,
+                  quantity: cartItem.quantity,
+                });
+              }
+
+              return items;
+            },
+            [],
+          );
 
           // Merge guest cart
           guestCart.forEach((guestItem) => {
@@ -81,19 +107,20 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
           // Save merged cart to MongoDB
           if (guestCart.length > 0) {
-            await fetch("/api/cart", {
+            const mergeResponse = await fetch("/api/cart", {
               method: "PUT",
               headers: {
                 "Content-Type": "application/json",
               },
               body: JSON.stringify({
-                items: mergedCart,
+                items: mergedCart.map((item) => ({
+                  productId: item.product.id,
+                  quantity: item.quantity,
+                })),
               }),
             });
 
-            // Guest cart is now safely
-            // stored in MongoDB
-            localStorage.removeItem("cart");
+            if (mergeResponse.ok) localStorage.removeItem("cart");
           }
 
           return;
@@ -131,27 +158,36 @@ export function CartProvider({ children }: { children: ReactNode }) {
       runningTotal + cartItem.product.price * cartItem.quantity,
     0,
   );
+  const saveCartToDatabase = (updatedCart: CartItem[]) => {
+    saveQueue.current = saveQueue.current.then(async () => {
+      try {
+        const response = await fetch("/api/cart", {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            items: updatedCart.map((item) => ({
+              productId: item.product.id,
+              quantity: item.quantity,
+            })),
+          }),
+        });
 
-  const saveCartToDatabase = async (updatedCart: CartItem[]) => {
-    try {
-      const response = await fetch("/api/cart", {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          items: updatedCart,
-        }),
-      });
+        if (!response.ok) {
+          const data = await response.json();
 
-      if (!response.ok) {
-        const data = await response.json();
+          throw new Error(data.message || "Failed to save cart");
+        }
 
-        throw new Error(data.message || "Failed to save cart");
+        return true;
+      } catch (error) {
+        console.error("Save cart error:", error);
+        return false;
       }
-    } catch (error) {
-      console.error("Save cart error:", error);
-    }
+    });
+
+    return saveQueue.current;
   };
 
   const addToCart = (product: Product, quantity: number = 1) => {

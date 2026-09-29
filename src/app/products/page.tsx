@@ -12,13 +12,16 @@ export default async function ProductsPage({
   searchParams,
 }: ProductsPageProps) {
   const params = await searchParams;
+
+  const category = params.category?.trim().toLowerCase() || "All";
+
   const isNewArrivals =
     params.sort === "newest" || params.collection === "new-arrivals";
 
   return (
-    <main>
+    <main className="min-h-screen bg-muslin">
       <ProductCollection
-        initialCategory={params.category?.toLowerCase() || "All"}
+        initialCategory={category}
         initialCollection={isNewArrivals ? "new-arrivals" : ""}
         initialSort={isNewArrivals ? "newest" : "default"}
         variant="shop"

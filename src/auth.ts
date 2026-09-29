@@ -2,6 +2,8 @@ import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 
 import { authenticateUser } from "@/lib/authenticateUser";
+import connectDB from "@/lib/mongodb";
+import User from "@/models/User";
 import type { UserRole } from "@/types/next-auth";
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
@@ -20,8 +22,13 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       },
 
       async authorize(credentials) {
-        const email = credentials?.email as string;
-        const password = credentials?.password as string;
+        const email =
+          typeof credentials?.email === "string"
+            ? credentials.email.trim().toLowerCase()
+            : "";
+
+        const password =
+          typeof credentials?.password === "string" ? credentials.password : "";
 
         if (!email || !password) {
           return null;
@@ -32,8 +39,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         if (!user) {
           return null;
         }
-
-        console.log("AUTH USER:", user);
 
         return {
           id: user.id,
@@ -47,23 +52,55 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
   callbacks: {
     async jwt({ token, user }) {
+      /*
+       * Initial login
+       */
       if (user) {
         token.id = user.id;
         token.role = user.role as UserRole;
       }
 
-      console.log("JWT ROLE:", token.role);
+      /*
+       * Re-check the current role from MongoDB.
+       *
+       * This prevents an old JWT/session from continuing
+       * to have admin privileges after the user's role
+       * has been changed or revoked in the database.
+       */
+      if (token.id) {
+        try {
+          await connectDB();
+
+          const currentUser = await User.findById(token.id)
+            .select("role")
+            .lean();
+
+          if (!currentUser) {
+            token.id = undefined;
+            token.role = "user";
+          } else {
+            token.role = currentUser.role as UserRole;
+          }
+        } catch (error) {
+          /*
+           * Do not silently grant admin privileges if the
+           * database cannot be checked.
+           */
+          console.error("AUTH ROLE REFRESH FAILED:", error);
+
+          token.role = "user";
+        }
+      }
 
       return token;
     },
 
     async session({ session, token }) {
       if (session.user) {
-        session.user.id = (token.id as string) ?? "";
+        session.user.id = typeof token.id === "string" ? token.id : "";
+
         session.user.role = (token.role as UserRole) ?? "user";
       }
-
-      console.log("SESSION ROLE:", session.user.role);
 
       return session;
     },
