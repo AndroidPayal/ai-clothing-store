@@ -377,6 +377,30 @@ export async function POST(request: Request) {
         "code" in error &&
         error.code === 11000
       ) {
+        console.error("MONGODB DUPLICATE KEY DETAILS:", {
+          code: "code" in error ? error.code : undefined,
+          keyPattern: "keyPattern" in error ? error.keyPattern : undefined,
+          keyValue: "keyValue" in error ? error.keyValue : undefined,
+          message: error instanceof Error ? error.message : String(error),
+        });
+
+        const duplicateKeyPattern =
+          "keyPattern" in error &&
+          error.keyPattern &&
+          typeof error.keyPattern === "object"
+            ? error.keyPattern
+            : null;
+
+        const isCheckoutIdempotencyDuplicate =
+          duplicateKeyPattern &&
+          "userId" in duplicateKeyPattern &&
+          "checkoutIdempotencyKey" in duplicateKeyPattern;
+
+        if (!isCheckoutIdempotencyDuplicate) {
+          throw error;
+        }
+
+        // Keep your existing concurrent checkout handling below this point.
         const concurrentOrder = await Order.findOne({
           userId: user.id,
           checkoutIdempotencyKey: idempotencyKey,
