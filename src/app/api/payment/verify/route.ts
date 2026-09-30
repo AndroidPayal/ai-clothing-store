@@ -155,6 +155,12 @@ export async function POST(request: Request) {
       );
     }
 
+    console.log("RAZORPAY VERIFY RECEIVED:", {
+      razorpayOrderId,
+      razorpayPaymentId,
+      hasSignature: Boolean(razorpaySignature),
+      signatureLength: razorpaySignature.length,
+    });
     // -----------------------------------------
     // 4. Database
     // -----------------------------------------
@@ -176,12 +182,59 @@ export async function POST(request: Request) {
         404,
       );
     }
-
     // -----------------------------------------
     // 6. Already processed payment
     // -----------------------------------------
     if (order.payment?.razorpayPaymentId) {
       if (order.payment.razorpayPaymentId === razorpayPaymentId) {
+        // The payment may have been confirmed by the webhook before
+        // this verify request reached the atomic confirmation step.
+        //
+        // We still need to cryptographically verify the checkout
+        // signature before storing it.
+        const generatedSignature = crypto
+          .createHmac("sha256", keySecret)
+          .update(`${razorpayOrderId}|${razorpayPaymentId}`, "utf8")
+          .digest("hex");
+
+        if (!safeCompare(razorpaySignature, generatedSignature)) {
+          return jsonResponse(
+            {
+              message: "Payment verification failed",
+            },
+            400,
+          );
+        }
+
+        // Store the valid checkout signature if it was not already saved.
+        if (!order.payment.razorpaySignature) {
+          const updatedOrder = await Order.findOneAndUpdate(
+            {
+              _id: order._id,
+              userId: user.id,
+              "payment.razorpayPaymentId": razorpayPaymentId,
+              "payment.razorpaySignature": {
+                $in: [null, ""],
+              },
+            },
+            {
+              $set: {
+                "payment.razorpaySignature": razorpaySignature,
+              },
+            },
+            {
+              new: true,
+            },
+          );
+
+          if (updatedOrder) {
+            return jsonResponse({
+              message: "Payment already verified",
+              order: sanitizeOrder(updatedOrder),
+            });
+          }
+        }
+
         if (order.payment.refundStatus === "Refunded") {
           return jsonResponse(
             {
@@ -218,7 +271,6 @@ export async function POST(request: Request) {
         409,
       );
     }
-
     // -----------------------------------------
     // 7. Order must be pending
     // -----------------------------------------
@@ -719,6 +771,7 @@ export async function POST(request: Request) {
     // -----------------------------------------
     // 18. Safe response
     // -----------------------------------------
+
     return jsonResponse({
       message: "Payment verified and order confirmed successfully",
       order: sanitizeOrder(confirmedOrder),
