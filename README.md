@@ -2,8 +2,8 @@
 <img width="1007" height="609" alt="Capture2" src="https://github.com/user-attachments/assets/39d7245a-77f1-4bb5-9aec-9a1ae0cebbd6" />
 <img width="1006" height="605" alt="Capture3" src="https://github.com/user-attachments/assets/6f3484e1-e27a-4597-8688-3053e87574cd" />
 <img width="1006" height="610" alt="Capture4" src="https://github.com/user-attachments/assets/fd5017f9-a178-49f2-a118-ea50a3264915" />
-<img width="1006" height="607" alt="Capture5" src="https://github.com/user-attachments/assets/b65451dc-908b-4f6b-99ed-ee1f1a7061e0" />
 <img width="1006" height="608" alt="Capture6" src="https://github.com/user-attachments/assets/1961813e-a5aa-43af-93a4-75c0f4759b9e" />
+<img width="1006" height="607" alt="Capture5" src="https://github.com/user-attachments/assets/b65451dc-908b-4f6b-99ed-ee1f1a7061e0" />
 
 # SOZAN / NAZM — Full-Stack Fashion E-commerce Platform
 
